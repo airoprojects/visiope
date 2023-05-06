@@ -3,7 +3,7 @@
 | Franceso | Paolo | Leonardo |
 |----------|-------|----------| 
 |Loading dataset| Gathering info about different models | Gathering info about different loss function|
-| | | |Writing the Abstarct|
+| / | / | |Writing the Abstarct|
 
 
 ## To test
