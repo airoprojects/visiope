@@ -1,11 +1,10 @@
 ## Work in progress
 
+| Franceso | Paolo | Leonardo |
+|----------|-------|----------| 
+|Loading dataset| Gathering info about different models | Gathering info about different loss function|
+| | | |Writing the Abstarct|
 
-
-1. Writing the abstsract -> all group
-2. Gathering info about different models -> Paolo
-3. Gathering info about different loss function -> Leonardo
-4. Loading dataset -> Francesco
 
 ## To test
 
