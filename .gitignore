@@ -159,5 +159,8 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-# Project specifics files to ignore
-shell.ipynb 
+# Project dependent files to ignore
+semantic-segmentation
+Models/semantic-segmentation
+models/semantic-segmentation
+
