@@ -10,7 +10,7 @@
 - Papers and code for specific models:
   - SegNet (https://arxiv.org/pdf/1511.00561v3.pdf) https://github.com/yassouali/pytorch-segmentation/blob/8b8e3ee20a3aa733cb19fc158ad5d7773ed6da7f/models/segnet.py
   - resunet++ (https://arxiv.org/pdf/1911.07067.pdf) https://github.com/DebeshJha/ResUNetplusplus
-  - SegFormer (https://arxiv.org/pdf/2105.15203v3.pdf) https://github.com/NVlabs/SegFormer/tree/master/tests
+  - SegFormer (https://arxiv.org/pdf/2105.15203v3.pdf) https://github.com/NVlabs/SegFormer/tree/master/tests tutorial: https://colab.research.google.com/github/sithu31296/semantic-segmentation/blob/main/notebooks/tutorial.ipynb
 
 
 **Loss Functions:**
