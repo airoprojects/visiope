@@ -22,6 +22,7 @@ class SegFormerpp(BaseModel):
     def forward(self, x: Tensor) -> Tensor:
         y = self.backbone(x)
         y = self.decode_head(y)   # 4x reduction in image size
+        y = torch.nn.conv2d(x.shape[0],1)
         if head != 'custom':
             y = F.interpolate(y, size=x.shape[2:], mode='bilinear', align_corners=False)    # to original image shape
         return y
