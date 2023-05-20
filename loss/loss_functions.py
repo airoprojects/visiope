@@ -1,18 +1,19 @@
+""" 
+This script implements different loss function, both standard and custom, used 
+to train MER-Segmentation to perform semantic segmentation over martian terrain  
+images.
+"""
+
 import torch.nn as nn
 import numpy as np
 
-""" 
-This script implements different loss function both standard and custom, for a
-semantic segmentation task 
-"""
-
 # Standard cross entropy 
-def CrossEntropyStd(label, prediction):
+def std_cross_entropy(label, prediction):
     criteria = nn.CrossEntropyLoss()
     return criteria(label, prediction)
 
 # Soft Dice loss
-def SoftDiceLoss(y_true, y_pred, epsilon=1e-6): 
+def soft_dice(y_true, y_pred, epsilon=1e-6): 
     """
     Soft dice loss calculation for arbitrary batch size, number of classes, and 
     number of spatial dimensions.

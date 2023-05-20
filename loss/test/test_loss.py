@@ -1,12 +1,16 @@
-from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
+from torch.utils.data import Dataset
 import matplotlib.pyplot as plt
 import pickle
 import torch
+
+# Setup path for custom imports
 import sys
 sys.path.insert(0, '/content/drive/MyDrive/Github/visiope/loss')
-from loss_fn import *
+from loss_functions import *
 
+# Train the model
+train_loader = []
 
 """
 class Ai4MarsData(Dataset):
@@ -58,10 +62,15 @@ plt.imshow(prediction)
 plt.show()
 
 # does not work
-#SoftDiceLoss(label, prediction)
+#soft_dice(label, prediction)
 
-criteria_result = CrossEntropyStd(label, prediction)
+criteria_result = std_cross_entropy(label, prediction)
 print(criteria_result)
+
+loss_fn = torch.nn.CrossEntropyLoss()
+
+# Optimizers specified in the torch.optim package
+#optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
 
 
