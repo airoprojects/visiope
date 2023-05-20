@@ -165,4 +165,3 @@ Models/semantic-segmentation
 models/semantic-segmentation
 dataloader/ai4mars-dataset-merged-0.1
 dataloader/data_loader.pkl
-loss/test/
