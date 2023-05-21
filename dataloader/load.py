@@ -25,21 +25,26 @@ class Ai4MarsData(Dataset):
             image = self.transform(image)
 
         return image, label
-    def splitLoader(self,percentage,batch_size_train,batch_size_test):
+    
+    #this function return 3 dataloader (train,test,validation) splitted from self 
+    #percentage -> give percentage of train size, the rest of percentage is given divided the residual part
+    #sizeBatch -> determine the size of batch
+    def splitLoader(self,percentage,sizeBatch):
         dataset = self
         ratio = percentage/100
 
         #setup variables
         d_size = len(self)
         train_size = int(ratio*d_size)
-        test_size = d_size - train_size
+        test_size = int((d_size - train_size)/2)
+        validation_size = test_size
 
         #split
-        train_dataset, test_dataset = random_split(dataset,[train_size,test_size])
+        train_dataset, test_dataset, validation_dataset = random_split(dataset,[train_size,test_size,validation_size])
 
         #create other loaders
-        train_loader = DataLoader(train_dataset,batch_size=batch_size_train)
-        test_loader = DataLoader(test_dataset,batch_size=batch_size_test)
-        return train_loader,test_loader
-
-
+        train_loader = DataLoader(train_dataset,batch_size=sizeBatch)
+        test_loader = DataLoader(test_dataset,batch_size=sizeBatch)
+        validation_loader = DataLoader(validation_dataset,batch_size=sizeBatch)
+        
+        return train_loader,test_loader,validation_loader
