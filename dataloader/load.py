@@ -19,7 +19,7 @@ class Ai4MarsData(Dataset):
     
     def __getitem__(self, index):
         image = self.X[index]
-        label = self.y[label]
+        label = self.y[index]
 
         if self.transform:
             image = self.transform(image)
