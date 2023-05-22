@@ -25,6 +25,7 @@ def train_one_epoch(parameters, epoch_index, tb_writer):
     loss_fn = parameters['loss']
     optimizer = parameters['optimizer']
     training_set = parameters['training']
+    device = parameters['device']
 
     # To keep track of the last loss when the function is executed through multiple epochs
     running_loss = 0.
@@ -35,8 +36,10 @@ def train_one_epoch(parameters, epoch_index, tb_writer):
     # index and do some intra-epoch reporting
     for i, data in enumerate(training_set):
         # Every data instance is an input + label pair
+        print(type(data))
         inputs, labels = data
-
+        inputs = inputs.permute(0,3,1,2).to(device)
+        labels = labels.to(device)
         # Zero your gradients for every batch!
         optimizer.zero_grad()
 
