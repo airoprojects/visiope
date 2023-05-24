@@ -4,24 +4,16 @@ from torch.utils.data import DataLoader, Dataset, random_split
 
 
 
-
 #This class rappresents the dataset 
 class Ai4MarsData(Dataset):
     #X tensor (torch) -> images
     #y tensor (torch) -> labels
 
-    def __init__(self, X, y, device=None, permute=None,transform=None):
-
-        if permute:
-            self.X = X.permute(0,3,1,2)
-        else:
-            self.X = X
-        
-        if device:
-            X = X.to(device)
-
+    def __init__(self, X, y,transform=None):
+        self.X = X
         self.y = y
         self.transform = transform
+        
     
     def __len__(self):
         return len(self.X)
@@ -35,10 +27,43 @@ class Ai4MarsData(Dataset):
 
         return image, label
     
+
+    '''
+    TO DO
+  
+    def resize(self,resize,interp=None):
+        if interp:
+            k = interp
+        else:
+            k = cv2.INTER_NEAREST
+        for image in self.X:
+            image = 
+        self.X = cv2.resize(img_arr, dsize=(size, size),interpolation=k)
+        self.y = cv2.resize(img_arr, dsize=(size, size),interpolation=k)
+
+    '''
+    
+    def setPermuteX(self,perm):   
+        print(type(self.X)) 
+        self.X = self.X.permute(perm[0],perm[1],perm[2],perm[3])
+    
+    def setPermuteY(self,perm):    
+        self.y = self.y.permute(perm[0],perm[1],perm[2],perm[3])
+
+    
+    def setDevice(self,device,which):
+        if which==0:
+            self.X = X.to(device)
+        else:
+            self.y = y.to(device)
+
+
+
+    
     #this function return 3 dataloader (train,test,validation) splitted from self 
     #percentage -> give percentage of train size, the rest of percentage is given divided the residual part
     #sizeBatch -> determine the size of batch
-    def splitLoader(self,percentage,sizeBatch,permute=None):
+    def splitLoader(self,percentage,sizeBatch):
         dataset = self
         ratio = percentage/100
 
@@ -66,5 +91,3 @@ class Ai4MarsData(Dataset):
 
 
         return train_loader,test_loader,validation_loader
-    
-
