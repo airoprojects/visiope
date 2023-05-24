@@ -4,13 +4,22 @@ from torch.utils.data import DataLoader, Dataset, random_split
 
 
 
+
 #This class rappresents the dataset 
 class Ai4MarsData(Dataset):
     #X tensor (torch) -> images
     #y tensor (torch) -> labels
 
-    def __init__(self, X, y, transform=None):
-        self.X = X
+    def __init__(self, X, y, device=None, permute=None,transform=None):
+
+        if permute:
+            self.X = X.permute(0,3,1,2)
+        else:
+            self.X = X
+        
+        if device:
+            X = X.to(device)
+
         self.y = y
         self.transform = transform
     
@@ -29,7 +38,7 @@ class Ai4MarsData(Dataset):
     #this function return 3 dataloader (train,test,validation) splitted from self 
     #percentage -> give percentage of train size, the rest of percentage is given divided the residual part
     #sizeBatch -> determine the size of batch
-    def splitLoader(self,percentage,sizeBatch):
+    def splitLoader(self,percentage,sizeBatch,permute=None):
         dataset = self
         ratio = percentage/100
 
@@ -42,9 +51,20 @@ class Ai4MarsData(Dataset):
         #split
         train_dataset, test_dataset, validation_dataset = random_split(dataset,[train_size,test_size,validation_size])
 
+
+
+       
+        
+
+        print(type(train_dataset))
+
         #create other loaders
         train_loader = DataLoader(train_dataset,batch_size=sizeBatch)
         test_loader = DataLoader(test_dataset,batch_size=sizeBatch)
         validation_loader = DataLoader(validation_dataset,batch_size=sizeBatch)
-        
+
+
+
         return train_loader,test_loader,validation_loader
+    
+
