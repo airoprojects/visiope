@@ -36,7 +36,6 @@ def train_one_epoch(parameters, epoch_index, tb_writer):
     # index and do some intra-epoch reporting
     for i, data in enumerate(training_set):
         # Every data instance is an input + label pair
-        print(type(data))
         inputs, labels = data
         inputs = inputs.permute(0,3,1,2).to(device)
         labels = labels.to(device)
@@ -47,8 +46,9 @@ def train_one_epoch(parameters, epoch_index, tb_writer):
         outputs = model(inputs)
 
         # Compute the loss and its gradients
-        print(outputs.size)
-        print(labels.size)
+
+        labels = labels [None, :, :, :]
+        labels = labels.type(torch.DoubleTensor)
         loss = loss_fn(outputs, labels)
         loss.backward()
 
@@ -128,6 +128,7 @@ def train_multiple_epoch(parameters, EPOCHS=100):
 if __name__ == '__main__':
 
     # This variable needs to be initialized with dummy values/data to test loss integration
+    '''
     model = 0
     optimizer = 0
     loss_fn = 0
@@ -141,4 +142,6 @@ if __name__ == '__main__':
                     'training' : training_set,
                     'validation': validation_set
     }
+    '''
+
 
