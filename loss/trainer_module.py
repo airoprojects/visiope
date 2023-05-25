@@ -47,6 +47,8 @@ def train_one_epoch(parameters, epoch_index, tb_writer):
         outputs = model(inputs)
 
         # Compute the loss and its gradients
+        print(outputs.size)
+        print(labels.size)
         loss = loss_fn(outputs, labels)
         loss.backward()
 
