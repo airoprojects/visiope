@@ -53,12 +53,16 @@ class Ai4MarsData(Dataset):
     
     def setDevice(self,device,which):
         if which==0:
-            self.X = self.X.to(device)
+            self.X = X.to(device)
         else:
-            self.y = self.y.to(device)
+            self.y = y.to(device)
 
-
-
+    def conversion(self,what):
+        if(what==0):
+            self.y = self.y.type(torch.DoubleTensor)
+        else:
+            self.X = self.X.type(torch.DoubleTensor)
+        
     
     #this function return 3 dataloader (train,test,validation) splitted from self 
     #percentage -> give percentage of train size, the rest of percentage is given divided the residual part
@@ -91,3 +95,4 @@ class Ai4MarsData(Dataset):
 
 
         return train_loader,test_loader,validation_loader
+    
