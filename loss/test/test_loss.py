@@ -63,8 +63,8 @@ plt.show()
 
 # does not work
 #soft_dice(label, prediction)
-
-criteria_result = std_cross_entropy(label, prediction)
+loss = LossClass
+criteria_result = loss.std_cross_entropy(label, prediction)
 print(criteria_result)
 
 loss_fn = torch.nn.CrossEntropyLoss()
