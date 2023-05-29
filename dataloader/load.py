@@ -10,8 +10,9 @@ class Ai4MarsData(Dataset):
     #y tensor (torch) -> labels
 
     def __init__(self, X, y,transform=None):
-        self.X = X
+        self.X = X.permute(0,3,1,2)
         self.y = y
+
         self.transform = transform
         
     
@@ -27,22 +28,6 @@ class Ai4MarsData(Dataset):
 
         return image, label
     
-
-    '''
-    TO DO
-  
-    def resize(self,resize,interp=None):
-        if interp:
-            k = interp
-        else:
-            k = cv2.INTER_NEAREST
-        for image in self.X:
-            image = 
-        self.X = cv2.resize(img_arr, dsize=(size, size),interpolation=k)
-        self.y = cv2.resize(img_arr, dsize=(size, size),interpolation=k)
-
-    '''
-    
     def setPermuteX(self,perm):   
         print(type(self.X)) 
         self.X = self.X.permute(perm[0],perm[1],perm[2],perm[3])
@@ -53,15 +38,27 @@ class Ai4MarsData(Dataset):
     
     def setDevice(self,device,which):
         if which==0:
-            self.X = self.X.to(device)
+            self.X = X.to(device)
         else:
-            self.y = self.y.to(device)
+            self.y = y.to(device)
 
     def convertion(self,what):
         if(what==0):
             self.y = self.y.type(torch.DoubleTensor)
         else:
             self.X = self.X.type(torch.DoubleTensor)
+
+
+    def resize(self,resize,interp=None):
+        '''
+        if interp:
+            k = interp
+        else:
+            k = torchvision.transforms.InterpolationMode
+        '''
+        transform = transforms.Resize(resize,antialias=True)
+        self.X = transform(self.X)
+        self.y = transform(self.y)
         
     
     #this function return 3 dataloader (train,test,validation) splitted from self 
