@@ -1,12 +1,21 @@
 """ Trainer module for MER-Segmentation """
 
-from datetime import datetime
-import torch
-
-# Setup path for custom imports
 import sys
-sys.path.insert(0, '/content/drive/MyDrive/Github/visiope/loss')
-from loss_functions import *
+import torch
+from pathlib import Path
+from datetime import datetime
+
+# Check if the script is runned in local or on colab
+IN_COLAB = 'google.colab' in sys.modules
+
+# Path object for the current file
+current_file = Path(__file__).parent
+
+# Setup path for custom imports in local and colab
+if IN_COLAB: sys.path.insert(0, '/content/drive/MyDrive/Github/visiope/loss')
+else: sys.path.insert(0, current_file)
+from custom_loss import *
+import custom_loss
 
 # Training functions
 def trainer(parameters, multiple_epochs=False, epoch_index=0, tb_writer=0):
@@ -165,5 +174,5 @@ if __name__ == '__main__':
         'device' : device
     }
 
-
+    print(IN_COLAB)
 
