@@ -38,9 +38,9 @@ class Ai4MarsData(Dataset):
     
     def setDevice(self,device,which):
         if which==0:
-            self.X = X.to(device)
+            self.X = self.X.to(device)
         else:
-            self.y = y.to(device)
+            self.y = self.y.to(device)
 
     def convertion(self,what):
         if(what==0):
