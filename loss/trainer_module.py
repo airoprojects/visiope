@@ -18,11 +18,10 @@ from custom_loss import *
 import custom_loss
 
 # Training functions
-def trainer(parameters, multiple_epochs=False, epoch_index=0, tb_writer=0):
+def trainer(hyperparameters, model, multiple_epochs=False, epoch_index=0, tb_writer=0):
 
     if multiple_epochs: 
-        train_multiple_epoch(parameters, EPOCHS=100)
-
+        train_multiple_epoch(hyperparameters, EPOCHS=100)
     else:
         train_one_epoch(parameters, epoch_index, tb_writer)
     
@@ -41,9 +40,8 @@ def train_one_epoch(parameters, epoch_index, tb_writer):
     running_loss = 0.
     last_loss = 0.
 
-    # Here, we use enumerate(training_loader) instead of
-    # iter(training_loader) so that we can track the batch
-    # index and do some intra-epoch reporting
+    # Here, we use enumerate(training_loader) so that we can track 
+    # the batch index and do some intra-epoch reporting.
     for i, data in enumerate(training_set):
 
         # Every data instance is an (input, label) pair
@@ -77,7 +75,7 @@ def train_one_epoch(parameters, epoch_index, tb_writer):
         '''
         IMPORTANT: UNCOMMENT THIS PART AFTER FINDING OUT ABOUT TB_WRITER
         '''
-        # Gather data and report
+        # Gather data and report every last batch
         running_loss += loss.item()
         if i % 1000 == 999:
             last_loss = running_loss / 1000 # loss per batch
