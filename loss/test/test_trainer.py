@@ -21,7 +21,7 @@ if testing_loss:
     else:
         sys.path.insert(0, '/content/drive/MyDrive/Github/visiope/loss')
 
-    #print(sys.path)
+    print(sys.path)
     from trainer_module import *
     from custom_loss import *
 

@@ -5,7 +5,7 @@ import torch
 from pathlib import Path
 from datetime import datetime
 
-class Trainer():
+class MyTrainer():
 
     def __init__(self, loss_fn, optimizer, training_set, test_set):
 
@@ -101,8 +101,3 @@ class Trainer():
                 torch.save(model.state_dict(), model_path)
             
             epoch_number += 1
-
-
-if __name__ == '__main__':
-
-    trainer = Trainer()
