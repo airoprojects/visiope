@@ -1,4 +1,4 @@
-"""  This script implements different loss function, both standard and custom, used 
+"""  This script implements different loss functions, both standard and custom, used 
 to train MER-Segmentation to perform semantic segmentation over martian terrain  
 images. """
 
@@ -7,23 +7,9 @@ import numpy as np
 import torch.nn as nn
 from torch import Tensor
 
-class TestClass:
-
-    @classmethod
-    def __show__():
-        print("\n   Standard Cross Entropy \n")
-
-    # Standard cross entropy ... useless
-    def cross_entropy():
-        return nn.CrossEntropyLoss()
-        
-    
-    def stupid_function(label=torch.tensor([]), prediction=torch.tensor([])):
-        assert label.size() == prediction.size(), "'prediction' and 'target' must have the same shape"
-        return lambda label, prediction : label - prediction 
         
 
-# Soft Dice loss ... to review    
+# Soft Dice Loss ... to review    
 class GDL(nn.Module):
 
     # Template initialization of nn Module to create callable objects
