@@ -7,7 +7,7 @@ import numpy as np
 import torch.nn as nn
 from torch import Tensor
 
-class LossClass:
+class TestClass:
 
     @classmethod
     def __show__():
