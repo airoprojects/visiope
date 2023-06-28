@@ -7,20 +7,14 @@ from datetime import datetime
 
 class MyTrainer():
 
-    def __init__(self, loss_fn, optimizer, training_set, test_set):
 
+    def __init__(self, loss_fn, optimizer, training_set, test_set):
         # Initialization of training parameters
+        
         self.loss_fn = loss_fn
         self.optimizer = optimizer
         self.training_set = training_set
         self.test_set = test_set
-
-    def __show_inputs__():
-        print("Class inputs are: \n \
-              1. loss function \n \
-              2. optimizer \n \
-              3. training set \n"   
-        )
 
     # This function implements training for just one epoch
     def train_one_epoch(self, model):
