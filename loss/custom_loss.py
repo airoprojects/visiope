@@ -5,12 +5,11 @@ images. """
 import torch
 import numpy as np
 import torch.nn as nn
-from torch import Tensor
+import torch.nn.functional as F
 
         
-
-# Soft Dice Loss ... to review    
 class GDL(nn.Module):
+    # Soft Dice Loss ... to review  
 
     # Template initialization of nn Module to create callable objects
     def __init__(self):
@@ -38,3 +37,24 @@ class GDL(nn.Module):
         denominator = (denominator * w_l).clamp(min=self.epsilon)
 
         return 1 - (2 * (intersect.sum() / denominator.sum()))
+    
+
+class FocalLoss(nn.Module):
+    def __init__(self, alpha=0.5, gamma=2.0):
+        super(FocalLoss, self).__init__()
+        self.alpha = alpha
+        self.gamma = gamma
+
+    def forward(self, input, target):
+        # Compute the cross-entropy loss
+        ce_loss = F.cross_entropy(input, target, reduction='none')
+
+        # Compute the focal loss
+        pt = torch.exp(-ce_loss)
+        focal_loss = self.alpha * (1 - pt) ** self.gamma * ce_loss
+
+        # Compute the mean loss over the batch
+        loss = torch.mean(focal_loss)
+
+        return loss
+

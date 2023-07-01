@@ -7,16 +7,15 @@ from datetime import datetime
 
 class MyTrainer():
 
+    # Initialization of training parameters in the class constructor
     def __init__(self, loss_fn, optimizer, training_set, test_set):
-        # Initialization of training parameters
         self.loss_fn = loss_fn
         self.optimizer = optimizer
         self.training_set = training_set
         self.test_set = test_set
 
-    
+    # This function implements training for just one epoch
     def train_one_epoch(self, model, epoch_index=0):
-        # This function implements training for just one epoch
         accumulated_loss = 0.
         last_loss = 0.
 
@@ -49,9 +48,8 @@ class MyTrainer():
             
         return last_loss
     
-    
+    # This function implements training for multiple epochs
     def train_multiple_epoch(self, model, EPOCHS=100):
-        # This function implements training for multiple epochs
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         epoch_number = 0 # just a counter
         best_tloss = 1_000_000.
