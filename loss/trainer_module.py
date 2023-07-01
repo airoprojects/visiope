@@ -7,29 +7,22 @@ from datetime import datetime
 
 class MyTrainer():
 
-
     def __init__(self, loss_fn, optimizer, training_set, test_set):
         # Initialization of training parameters
-        
         self.loss_fn = loss_fn
         self.optimizer = optimizer
         self.training_set = training_set
         self.test_set = test_set
 
-    # This function implements training for just one epoch
-    def train_one_epoch(self, model):
-   
-        # To keep track of the last loss when the function is executed 
-        # through multiple epochs
-        running_loss = 0.
+    
+    def train_one_epoch(self, model, epoch_index=0):
+        # This function implements training for just one epoch
+        accumulated_loss = 0.
         last_loss = 0.
 
-        # Here, we use enumerate(training_loader) so that we can track 
-        # the batch index and do some intra-epoch reporting.
-        for i, data in enumerate(self.training_set):
-
+        for batch_index, batch in enumerate(self.training_set):
             # Every data instance is an (input, label) pair
-            inputs, labels = data
+            inputs, labels = batch
 
             # Zero your gradients for every batch!
             self.optimizer.zero_grad()
@@ -44,54 +37,60 @@ class MyTrainer():
             # Adjust learning weights
             self.optimizer.step()
             
-            # Gather data and report every last batch
-            running_loss += loss.item()
-            if i % 1000 == 999:
-                last_loss = running_loss / 1000 # loss per batch
-                print('  batch {} loss: {}'.format(i + 1, last_loss))
-                running_loss = 0.
+            
+            accumulated_loss += loss.item()
+            #report_index = len(self.training_set) -1   
+           
+        # Compute the average loss over all batches
+        last_loss =  accumulated_loss / batch_index+1 
+
+        # Print report at the end of the last batch
+        print(f'Epoch {epoch_index+1} loss: {last_loss}')
             
         return last_loss
     
-    # This function implements training for multiple epochs
+    
     def train_multiple_epoch(self, model, EPOCHS=100):
-        
-        # Initialization of report parameters
+        # This function implements training for multiple epochs
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         epoch_number = 0 # just a counter
         best_tloss = 1_000_000.
 
         for epoch in range(EPOCHS):
-            print('EPOCH {}:'.format(epoch_number + 1))
+            print(f'EPOCH: {epoch+1}')
 
             # Make sure gradient tracking is on, and do a pass over the data
             model.train(True)
-            avg_loss = self.train_one_epoch(model)
+            avg_loss = self.train_one_epoch(model, epoch)
 
             # We don't need gradients on to do reporting
             model.train(False)
 
             # Test loss
-            running_tloss = 0.0
-            for i, tdata in enumerate(self.test_set):
+            accumulated_tloss = 0.0
+            for tbatch_index, tbatch in enumerate(self.test_set):
 
-                # Every data instance is a (test_input, test_label) pair
-                test_inputs, test_labels = tdata
+                # Every data instance is a (input, label) pair
+                tinputs, tlabels = tbatch
 
                 # Model prediction
-                toutputs = model(test_inputs)
+                toutputs = model(tinputs)
 
                 # Run test loss
-                test_loss = self.loss_fn(toutputs, test_labels)
-                running_tloss += test_loss
+                test_loss = self.loss_fn(toutputs, tlabels)
+                accumulated_tloss += test_loss.item()
 
-            avg_tloss = running_tloss / (i + 1)
-            print('LOSS train {} valid {}'.format(avg_loss, avg_tloss))
+            # Compute the average loss over all batches
+            avg_tloss = accumulated_tloss / (tbatch_index + 1)
+
+            # Print report at the end of the epoch
+            print(f'LOSS train {avg_loss} test {avg_tloss}')
             
             # Track best performance, and save the model's state
             if avg_tloss < best_tloss:
                 best_tloss = avg_tloss
                 model_path = 'model_{}_{}'.format(timestamp, epoch_number)
                 torch.save(model.state_dict(), model_path)
-            
-            epoch_number += 1
+
+if __name__ == '__main__':
+    pass
