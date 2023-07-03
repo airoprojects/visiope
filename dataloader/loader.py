@@ -63,41 +63,61 @@ class Ai4MarsData(Dataset):
         self.y = transform(self.y)
 
 
+class Ai4MarsImporter():
 
-class Importer():
+    def __init__(self, path_to_dataset='./', IN_COLAB=None):
+        self.path = path_to_dataset
+        self.IN_COLAB = IN_COLAB
 
-    def __init__():
-        ...
+    def __call__(self, num_of_images=200): 
+        
 
-    def __import__(self, num_of_images=200): 
-        IN_COLAB = 'google.colab' in sys.modules
+        if not self.IN_COLAB:
+            is_here = os.path.exists(self.path + 'ai4mars-dataset-merged-0.1')
 
-        if IN_COLAB:
+            if is_here:
+                print("You already have the dadaset")
+
+            else:
+                raise FileNotFoundError('ai4mars-dataset-merged-0.1')
+
+        else:
+
             from google.colab import drive
             drive.mount('/content/drive')
 
             # set up dataset directory path
-            ckpt = Path('/content/drive/MyDrive/Dataset/')
-            ckpt.mkdir(exist_ok=True, parents=True)
+            # ckpt = Path('/content/drive/MyDrive/Dataset/')
+            # ckpt.mkdir(exist_ok=True, parents=True)
+            if not os.path.exists('/content/drive/MyDrive/Dataset/') : 
+                os.makedirs('/content/drive/MyDrive/Dataset/')
 
-            # CHeck if the dataset is allready in Google Drive
-            is_here = !ls /content/drive/MyDrive/Dataset/ | grep -x ai4mars-dataset-merged-0.1
+            # Check if the dataset is already in Google Drive
+            #is_here = !ls /content/drive/MyDrive/Dataset/ | grep -x ai4mars-dataset-merged-0.1
+            is_here = os.path.exists('/content/drive/MyDrive/Dataset/ai4mars-dataset-merged-0.1')
 
             if is_here:
                 print("You already have the dadaset")
-                %cd /content/drive/MyDrive/Dataset/
+                os.chdir('/content/drive/MyDrive/Dataset/')
                 pass
 
             else:
-                # CHeck if the dataset is already in Google Drive but zipped
-                is_here_zipped = !ls /content/drive/MyDrive/Dataset/ | grep ai4mars-dataset-merged-0.1.zip
-
+                # Check if the dataset is already in Google Drive but zipped
+                #is_here_zipped = !ls /content/drive/MyDrive/Dataset/ | grep ai4mars-dataset-merged-0.1.zip
+                import zipfile
+                is_here_zipped  = os.path.exists('/content/drive/MyDrive/Dataset/ai4mars-dataset-merged-0.1.zip')
+                zip_file = '/content/drive/MyDrive/Dataset/ai4mars-dataset-merged-0.1.zip'
+                extract_dir = '/content/drive/MyDrive/Dataset/'
+                
                 if is_here_zipped :
                     print("You already have the dadaset, prepare to unzip it here")
 
                     # unzip dataset
-                    !unzip "/content/drive/MyDrive/Dataset/ai4mars-dataset-merged-0.1.zip" -d "/content/drive/MyDrive/Dataset/"
-                    %cd /content/drive/MyDrive/Dataset/
+                    #!unzip "/content/drive/MyDrive/Dataset/ai4mars-dataset-merged-0.1.zip" -d "/content/drive/MyDrive/Dataset/"
+                    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+                        zip_ref.extractall(extract_dir)
+
+                    os.chdir('/content/drive/MyDrive/Dataset/')
 
                 else:
                     print("You don't have the dataset, prepare to download and unzip it here")
@@ -112,10 +132,10 @@ class Importer():
                     gdown.download(url, output, quiet=False)
 
                     # unzip dataset
-                    !unzip "/content/ai4mars-dataset-merged-0.1.zip" -d "/content/drive/MyDrive/Dataset/"
-                    %cd /content/drive/MyDrive/Dataset/
-        else:
-            pass
+                    #!unzip "/content/ai4mars-dataset-merged-0.1.zip" -d "/content/drive/MyDrive/Dataset/"
+                    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+                        zip_ref.extractall(extract_dir)
+                    os.chdir('/content/drive/MyDrive/Dataset/')
 
         # Paths
         images = "ai4mars-dataset-merged-0.1/msl/images"
@@ -171,47 +191,31 @@ class Importer():
                 # Build nparray for inputs and outputs
                 X.append(img_arr)
                 y.append(lab_arr[:, :, np.newaxis])
-
-                # Check if images and labes corresponds
-                # if c == 3:
-                #     print(img_arr.shape)
-                #     print(lab_arr.shape)
-                #     print(X[3].shape)
-                #     print(y[3].shape)
-                #     plt.imshow(img_arr, cmap='gray')
-                #     plt.show()
-                #     plt.imshow(lab_arr, cmap='gray')
-                #     plt.show()
-                #     plt.imshow(torch.from_numpy(X[3]), cmap='gray')
-                #     plt.show()
-                #     plt.imshow(torch.from_numpy(y[3]), cmap='gray')
-                #     plt.imshow(lab_arr, cmap='gray')
-                #     plt.show()
             
                 image_counter += 1  # this control how much images you want
                 if image_counter == num_of_images: break
             
-            return X, y
+        return X, y
 
 
 # This class perform some preprocessing including:
 # Random Split
 # Normalization
 # Data Augmentation
-class Processor():
+class Ai4MarsProcessor():
 
-    def __init__(self, X, y, transformation):
+    def __init__(self, X, y, transformation=None):
         self.X = X
         self.y = y
         self.transformation = transformation
 
-    def custom_random_split(self, percentages):
+    def __call__(self, percentages):
         X = self.X
         y = self.y
         transform = self.transformation
 
         # uncomment this to obtain the same split each experiment
-        random.seed(10)
+        #random.seed(10)
 
         # assertions
         assert math.ceil(sum(percentages)) == 1.
@@ -232,7 +236,7 @@ class Processor():
         # Redistributions of residuals due to floor function
         if residuals:
 
-            for residual in range(1, residuals+1):                  # n steps with n supposed small
+            for residual in range(1, residuals+1):                  
                 subsets_lens[residual % len(percentages)] += 1
 
         subsets_indices = []
@@ -243,8 +247,6 @@ class Processor():
         for lens in subsets_lens:
             subsets_indices.append(random_indices[start:start+lens])
             start += lens
-
-        print(f'index of image 3: {subsets_indices[0].index(3)}')
 
         subsets_X = [[] for i in range(len(subsets_indices))]
         subsets_y = [[] for i in range(len(subsets_indices))]
@@ -276,8 +278,6 @@ class Processor():
         if transform:
 
             for tensor_X, tensor_y in zip(subsets_X[0], subsets_y[0]):
-
-                #UGLY METHOD
                 state = torch.get_rng_state()
                 augmentation_X.append(transform(tensor_X))
 
@@ -301,5 +301,7 @@ class Processor():
             else:
                 datasets.append(Ai4MarsData(subsets_X[i], subsets_y[i]))
 
-
         return datasets
+    
+if __name__ == '__main__':
+    ...
