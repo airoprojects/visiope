@@ -41,12 +41,12 @@ class Ai4MarsData(Dataset):
     def conversion(self, new_type='f'):
 
         if new_type == 'f':
-            self.X = self.X.type(toarch.float32)
-            self.X = self.X.type(toarch.float32)
+            self.X = self.X.type(torch.float32)
+            self.X = self.X.type(torch.float32)
         
         elif new_type == 'd':
-            self.X = self.X.type(toarch.float64)
-            self.y = self.y.type(toarch.float64)
+            self.X = self.X.type(torch.float64)
+            self.y = self.y.type(torch.float64)
         
         else:
             raise Exception('Invalid type')
