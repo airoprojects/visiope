@@ -33,7 +33,8 @@ class Ai4MarsTrainer():
             #NEED TO MODIFY FOR EACH MODEL, BASED ON LABEL!!!!!!!!!!!!
             new_pred = torch.argmax(outputs, dim=1)
             #new_pred = new_pred[None, :, :, :] FOR MODEL -> UNKNOWN 
-            New_pred = new_pred[:, None, :, :] 
+            new_pred = new_pred[:, None, :, :] 
+            new_pred = new_pred.type(torch.float32)
             # END OF TEMPORARY MODIFICATIONS
 
             # Compute the loss and its gradients
