@@ -38,13 +38,13 @@ class Ai4MarsData(Dataset):
             self.X = self.X.to(device)
             self.y = self.y.to(device)
 
-    def convertion(self, new_type='f'):
+    def conversion(self, new_type='f'):
 
-        if new_type == 'f'
+        if new_type == 'f':
             self.X = self.X.type(toarch.float32)
             self.X = self.X.type(toarch.float32)
         
-        elif new_type == 'd'
+        elif new_type == 'd':
             self.X = self.X.type(toarch.float64)
             self.y = self.y.type(toarch.float64)
         
