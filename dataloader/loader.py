@@ -63,64 +63,66 @@ class Ai4MarsData(Dataset):
         self.y = transform(self.y)
 
 
+# This function import the dataset as a two lists of nparray: X = images, y = labels 
 class Ai4MarsImporter():
 
-    def __init__(self, path_to_dataset='./', IN_COLAB=None):
-        self.path = path_to_dataset
-        self.IN_COLAB = IN_COLAB
+    def __init__(self, dataset_name='ai4mars-dataset-merged-0.1'):
+        self.dataset = dataset_name
+        ...
 
-    def __call__(self, num_of_images=200): 
-        
 
-        if not self.IN_COLAB:
-            is_here = os.path.exists(self.path + 'ai4mars-dataset-merged-0.1')
+    def __call__(self, path='./', IN_COLAB=False, num_of_images=200): 
+        print(f'This are the import parameters: \n \
+              Path to the dataset: {path} \n \
+              Colab Environment: {IN_COLAB} \n \
+              Number of images to load: {num_of_images} \n'
+              )
+
+        if not IN_COLAB:
+            is_here = os.path.exists(path + self.dataset)
 
             if is_here:
-                print("You already have the dadaset")
+                print(f"You already have {self.dataset}")
 
             else:
-                raise FileNotFoundError('ai4mars-dataset-merged-0.1')
+                raise FileNotFoundError(self.dataset)
 
-        else:
+        else: # IN_COLAB
+
+            fixed_path = '/content/drive/MyDrive/Dataset/'
+            path = fixed_path
 
             from google.colab import drive
             drive.mount('/content/drive')
 
             # set up dataset directory path
-            # ckpt = Path('/content/drive/MyDrive/Dataset/')
-            # ckpt.mkdir(exist_ok=True, parents=True)
-            if not os.path.exists('/content/drive/MyDrive/Dataset/') : 
-                os.makedirs('/content/drive/MyDrive/Dataset/')
+            if not os.path.exists(fixed_path) : 
+                os.makedirs(fixed_path)
 
             # Check if the dataset is already in Google Drive
-            #is_here = !ls /content/drive/MyDrive/Dataset/ | grep -x ai4mars-dataset-merged-0.1
-            is_here = os.path.exists('/content/drive/MyDrive/Dataset/ai4mars-dataset-merged-0.1')
+            is_here = os.path.exists(fixed_path + self.dataset)
 
             if is_here:
-                print("You already have the dadaset")
-                os.chdir('/content/drive/MyDrive/Dataset/')
-                pass
+                print(f"You already have {self.dataset}...")
+                # os.chdir('/content/drive/MyDrive/Dataset/')
 
             else:
                 # Check if the dataset is already in Google Drive but zipped
-                #is_here_zipped = !ls /content/drive/MyDrive/Dataset/ | grep ai4mars-dataset-merged-0.1.zip
                 import zipfile
-                is_here_zipped  = os.path.exists('/content/drive/MyDrive/Dataset/ai4mars-dataset-merged-0.1.zip')
-                zip_file = '/content/drive/MyDrive/Dataset/ai4mars-dataset-merged-0.1.zip'
-                extract_dir = '/content/drive/MyDrive/Dataset/'
+                zip_file = fixed_path + self.dataset + '.zip'
+                is_here_zipped  = os.path.exists(zip_file)
                 
                 if is_here_zipped :
-                    print("You already have the dadaset, prepare to unzip it here")
+                    print(f"You already have {self.dataset}, prepare to unzip it here: {fixed_path} ...")
 
                     # unzip dataset
-                    #!unzip "/content/drive/MyDrive/Dataset/ai4mars-dataset-merged-0.1.zip" -d "/content/drive/MyDrive/Dataset/"
                     with zipfile.ZipFile(zip_file, 'r') as zip_ref:
-                        zip_ref.extractall(extract_dir)
+                        zip_ref.extractall(fixed_path)  # extract in fixed path
 
-                    os.chdir('/content/drive/MyDrive/Dataset/')
+                    # os.chdir('/content/drive/MyDrive/Dataset/')
 
                 else:
-                    print("You don't have the dataset, prepare to download and unzip it here")
+                    print(f"You don't have {self.dataset}, prepare to download and unzip it {fixed_path} ...")
 
                     import gdown
 
@@ -132,17 +134,19 @@ class Ai4MarsImporter():
                     gdown.download(url, output, quiet=False)
 
                     # unzip dataset
-                    #!unzip "/content/ai4mars-dataset-merged-0.1.zip" -d "/content/drive/MyDrive/Dataset/"
                     with zipfile.ZipFile(zip_file, 'r') as zip_ref:
-                        zip_ref.extractall(extract_dir)
-                    os.chdir('/content/drive/MyDrive/Dataset/')
+                        zip_ref.extractall(fixed_path)
+
+                    #os.chdir('/content/drive/MyDrive/Dataset/')
+
+        print(f"Unpacking images and lables from: {self.dataset}...")
 
         # Paths
-        images = "ai4mars-dataset-merged-0.1/msl/images"
-        label_train = "ai4mars-dataset-merged-0.1/msl/labels/train"
-        label_test_1ag = "ai4mars-dataset-merged-0.1/msl/labels/test/masked-gold-min1-100agree"
-        label_test_2ag = "ai4mars-dataset-merged-0.1/msl/labels/test/masked-gold-min2-100agree"
-        label_test_3ag = "ai4mars-dataset-merged-0.1/msl/labels/test/masked-gold-min3-100agree"
+        images = path + "ai4mars-dataset-merged-0.1/msl/images"
+        label_train = path + "ai4mars-dataset-merged-0.1/msl/labels/train"
+        label_test_1ag = path + "ai4mars-dataset-merged-0.1/msl/labels/test/masked-gold-min1-100agree"
+        label_test_2ag = path + "ai4mars-dataset-merged-0.1/msl/labels/test/masked-gold-min2-100agree"
+        label_test_3ag = path + "ai4mars-dataset-merged-0.1/msl/labels/test/masked-gold-min3-100agree"
         edr = images + "/edr"
         mxy = images + "/mxy"
         rng = images + "/rng-30m"
@@ -195,8 +199,10 @@ class Ai4MarsImporter():
                 image_counter += 1  # this control how much images you want
                 if image_counter == num_of_images: break
             
+        print(f"Inputs len: {len(X)}")
+        print(f"Labels len: {len(y)}")
+        print("Done")
         return X, y
-
 
 # This class perform some preprocessing including:
 # Random Split
@@ -278,9 +284,11 @@ class Ai4MarsProcessor():
         if transform:
 
             for tensor_X, tensor_y in zip(subsets_X[0], subsets_y[0]):
+                # Save the state of the tensors
                 state = torch.get_rng_state()
                 augmentation_X.append(transform(tensor_X))
 
+                # To then apply the same transformation
                 torch.set_rng_state(state)
                 augmentation_y.append(transform(tensor_y))
 

@@ -5,33 +5,51 @@ IN_COLAB = 'google.colab' in sys.modules
 
 if not IN_COLAB:
 
+    from git import Repo
+
+    # Initialize the Git repository object
+    repo = Repo(".", search_parent_directories=True)
+
+    # Get the root directory of the Git project
+    root_dir = repo.git.rev_parse("--show-toplevel")
+
     from pathlib import Path
 
-    # Path object for the current file
-    current_file = str(Path(__file__).parent.parent)
-    print(current_file)
-    sys.path.insert(0, current_file)
+    # Set up path for custom importer modules
+    importer_module = root_dir + '/dataloader/'
+    sys.path.insert(0, importer_module)
+
+    # Insert here your local path to the dataset
+    data_path = '/home/leeoos/Desktop/'
 
 else: 
-    ...
+    # On Colab the path to the module ti fixed once you have 
+    # corretly set up the project with gitsetup.ipynb 
+    fixed_path = '/content/drive/MyDrive/Github/visiope/dataloader'
+    sys.path.insert(0, fixed_path)
+
+    # Insert here the path to the dataset on your drive
+    data_path = '/content/drive/MyDrive/Dataset'
 
 from loader import Ai4MarsImporter, Ai4MarsProcessor, Ai4MarsData
 
 
+data_import = Ai4MarsImporter()
 
-X, y = Ai4MarsImporter()()
-
-processor = Ai4MarsProcessor(X, y)
-
-train_set, test_set, val_set = processor([0.54, 0.26, 0.20])
-
-print(len(train_set))
-print(type(train_set))
-
-from torch.utils.data import DataLoader
+X, y = data_import(path=data_path, num_of_images=200)
 
 
-train_dataloader = DataLoader(train_set, batch_size=64, shuffle=True)
+# processor = Ai4MarsProcessor(X, y)
+
+# train_set, test_set, val_set = processor([0.54, 0.26, 0.20])
+
+# print(len(train_set))
+# print(type(train_set))
+
+# from torch.utils.data import DataLoader
+
+
+# train_dataloader = DataLoader(train_set, batch_size=64, shuffle=True)
 
 
 
