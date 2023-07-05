@@ -42,7 +42,7 @@ class Ai4MarsData(Dataset):
 
         if new_type == 'f':
             self.X = self.X.type(torch.float32)
-            self.X = self.X.type(torch.float32)
+            self.X = self.y.type(torch.float32)
         
         elif new_type == 'd':
             self.X = self.X.type(torch.float64)
