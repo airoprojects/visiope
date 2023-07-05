@@ -29,11 +29,11 @@ else:
 
     # On Colab the path to the module ti fixed once you have 
     # corretly set up the project with gitsetup.ipynb 
-    fixed_path = '/content/drive/MyDrive/Github/visiope/dataloader'
+    fixed_path = '/content/drive/MyDrive/Github/visiope/dataloader/'
     sys.path.insert(0, fixed_path)
 
     # Insert here the path to the dataset on your drive
-    data_path = '/content/drive/MyDrive/Dataset'
+    data_path = '/content/drive/MyDrive/Dataset/'
 
 from loader import Ai4MarsImporter, Ai4MarsProcessor, Ai4MarsData
 
