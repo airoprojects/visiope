@@ -28,9 +28,15 @@ class Ai4MarsTrainer():
 
             # Make predictions for this batch
             outputs = model(inputs)
+            
+            # TEMPORARY MODIFICATIONS
+            new_pred = torch.argmax(outputs, dim=1)
+            new_pred = new_pred[None, :, :, :]
+            assert new_pred.shape == (1, 1, 1024, 1024)
+            # END OF TEMPORARY MODIFICATIONS
 
             # Compute the loss and its gradients
-            loss = self.loss_fn(outputs, labels)
+            loss = self.loss_fn(new_pred, labels)
             loss.backward()
 
             # Adjust learning weights
