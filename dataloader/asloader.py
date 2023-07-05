@@ -56,6 +56,9 @@ class Ai4MarsData(Dataset):
         self.X = transform(self.X)
         self.y = transform(self.y)
 
+    def set_grad(self):
+        self.X.requires_grad = True
+
 
 # This function import the dataset as a two lists of nparray: X = images, y = labels 
 class Ai4MarsImporter():
