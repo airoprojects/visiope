@@ -89,18 +89,18 @@ class Ai4MarsImporter():
 
         else: # IN_COLAB
 
-            fixed_path = '/content/drive/MyDrive/Dataset/'
-            path = fixed_path
+            # path = '/content/drive/MyDrive/Dataset/'
 
+            # Mount Google Drive to be on the safe side 
             from google.colab import drive
             drive.mount('/content/drive')
 
             # set up dataset directory path
-            if not os.path.exists(fixed_path) : 
-                os.makedirs(fixed_path)
+            if not os.path.exists(path) : 
+                os.makedirs(path)
 
             # Check if the dataset is already in Google Drive
-            is_here = os.path.exists(fixed_path + self.dataset)
+            is_here = os.path.exists(path + self.dataset)
 
             if is_here:
                 print(f"You already have {self.dataset}...")
@@ -109,20 +109,26 @@ class Ai4MarsImporter():
             else:
                 # Check if the dataset is already in Google Drive but zipped
                 import zipfile
-                zip_file = fixed_path + self.dataset + '.zip'
+                from tqdm import tqdm
+
+                zip_file = path + self.dataset + '.zip'
                 is_here_zipped  = os.path.exists(zip_file)
                 
                 if is_here_zipped :
-                    print(f"You already have {self.dataset}, prepare to unzip it here: {fixed_path} ...")
+                    print(f"You already have {self.dataset}, prepare to unzip it here: {path} ...")
 
                     # unzip dataset
                     with zipfile.ZipFile(zip_file, 'r') as zip_ref:
-                        zip_ref.extractall(fixed_path)  # extract in fixed path
+                        for member in tqdm(zip_ref.infolist(), desc='Extracting '):
+                            try:
+                                zip_ref.extract(member, path)
+                            except zipfile.error as e:
+                                pass
 
                     # os.chdir('/content/drive/MyDrive/Dataset/')
 
                 else:
-                    print(f"You don't have {self.dataset}, prepare to download and unzip it {fixed_path} ...")
+                    print(f"You don't have {self.dataset}, prepare to download and unzip it {path} ...")
 
                     import gdown
 
@@ -135,13 +141,17 @@ class Ai4MarsImporter():
 
                     # unzip dataset
                     with zipfile.ZipFile(zip_file, 'r') as zip_ref:
-                        zip_ref.extractall(fixed_path)
+                        for member in tqdm(zip_ref.infolist(), desc='Extracting '):
+                            try:
+                                zip_ref.extract(member, path)
+                            except zipfile.error as e:
+                                pass
 
                     #os.chdir('/content/drive/MyDrive/Dataset/')
 
         print(f"Unpacking images and lables from: {self.dataset}...")
 
-        # Paths
+        # Images and labels paths
         images = path + "ai4mars-dataset-merged-0.1/msl/images"
         label_train = path + "ai4mars-dataset-merged-0.1/msl/labels/train"
         label_test_1ag = path + "ai4mars-dataset-merged-0.1/msl/labels/test/masked-gold-min1-100agree"
@@ -167,19 +177,17 @@ class Ai4MarsImporter():
 
         image_counter = 0 # this count how many images insert
 
-        for label in label_test_files_1:
-            path_label = os.path.join(label_test_1ag, label)
-            img_arr = cv2.imread(path_label,0) 
+        for label1, label2, label3 in zip(label_test_files_1, label_test_files_2, label_test_files_3):
+            path_label1 = os.path.join(label_test_1ag, label1)
+            img_arr = cv2.imread(path_label1, 0) 
             y1.append(img_arr)
 
-        for label in label_test_files_2:
-            path_label = os.path.join(label_test_2ag, label)
-            img_arr = cv2.imread(path_label,0) 
+            path_label2 = os.path.join(label_test_2ag, label2)
+            img_arr = cv2.imread(path_label2, 0) 
             y2.append(img_arr)
 
-        for label in label_test_files_3:
-            path_label = os.path.join(label_test_3ag, label)
-            img_arr = cv2.imread(path_label,0)
+            path_label3 = os.path.join(label_test_3ag, label3)
+            img_arr = cv2.imread(path_label3, 0)
             y3.append(img_arr)
 
         for label in label_train_files:

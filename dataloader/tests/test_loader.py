@@ -23,6 +23,10 @@ if not IN_COLAB:
     data_path = '/home/leeoos/Desktop/'
 
 else: 
+    
+    from google.colab import drive
+    drive.mount('/content/drive')
+
     # On Colab the path to the module ti fixed once you have 
     # corretly set up the project with gitsetup.ipynb 
     fixed_path = '/content/drive/MyDrive/Github/visiope/dataloader'
