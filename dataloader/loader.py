@@ -1,18 +1,11 @@
 import os
 import cv2
-import sys
 import math
 import torch
-import pickle
 import random
 import numpy as np
-import pandas as pd
-from pathlib import Path
-import matplotlib.pyplot as plt
 import torchvision.transforms as transforms
-from torch.utils.data import DataLoader, Dataset, random_split
-
-
+from torch.utils.data import Dataset
 
 # This class rappresents the dataset
 class Ai4MarsData(Dataset):
@@ -70,7 +63,6 @@ class Ai4MarsImporter():
         self.dataset = dataset_name
         ...
 
-
     def __call__(self, path='./', IN_COLAB=False, num_of_images=200): 
         print(f'This are the import parameters: \n \
               Path to the dataset: {path} \n \
@@ -104,7 +96,6 @@ class Ai4MarsImporter():
 
             if is_here:
                 print(f"You already have {self.dataset}...")
-                # os.chdir('/content/drive/MyDrive/Dataset/')
 
             else:
                 # Check if the dataset is already in Google Drive but zipped
@@ -125,8 +116,6 @@ class Ai4MarsImporter():
                             except zipfile.error as e:
                                 pass
 
-                    # os.chdir('/content/drive/MyDrive/Dataset/')
-
                 else:
                     print(f"You don't have {self.dataset}, prepare to download and unzip it {path} ...")
 
@@ -146,8 +135,6 @@ class Ai4MarsImporter():
                                 zip_ref.extract(member, path)
                             except zipfile.error as e:
                                 pass
-
-                    #os.chdir('/content/drive/MyDrive/Dataset/')
 
         print(f"Unpacking images and lables from: {self.dataset}...")
 
@@ -212,21 +199,29 @@ class Ai4MarsImporter():
         print("Done")
         return X, y
 
-# This class perform some preprocessing including:
-# Random Split
-# Normalization
-# Data Augmentation
+# This class perform : Random Split, Normalization and Data Augmentation
 class Ai4MarsProcessor():
 
-    def __init__(self, X, y, transformation=None):
-        self.X = X
-        self.y = y
-        self.transformation = transformation
+    def __init__(self):
+        ...
 
-    def __call__(self, percentages):
-        X = self.X
-        y = self.y
-        transform = self.transformation
+    def __call__(self, X, y, percentages=None, transform=None):
+
+        datasets = []
+
+        # If no percentual are given the data are not splitted and only one
+        # Dataset object is returned. In this case no transformations are applied
+        if not percentages:
+            X = np.asanyarray(X, dtype= np.float32) / 255
+            y = np.array(y, dtype= np.int64)
+            y[y==255] = 4
+
+            Xt = torch.from_numpy(X)
+            yt = torch.from_numpy(y)
+
+            datasets.append(Ai4MarsData(Xt, yt))
+
+            return datasets[0]
 
         # uncomment this to obtain the same split each experiment
         #random.seed(10)
@@ -305,8 +300,6 @@ class Ai4MarsProcessor():
 
             augmentation_y = torch.stack(augmentation_y, dim=0)
             augmented_set_y = torch.cat((subsets_y[0], augmentation_y[:100]),0)
-
-        datasets = []
 
         # Creation of datasets
         for i in range(len(subsets_X)):
