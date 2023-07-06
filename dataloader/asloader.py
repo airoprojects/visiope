@@ -34,26 +34,30 @@ class Ai4MarsData(Dataset):
     def setPermuteY(self, perm):
         self.y = self.y.permute(perm[0], perm[1], perm[2], perm[3])
 
-    def setDevice(self, device, which):
-
-        if which == 0:
+    def setDevice(self, device):
             self.X = self.X.to(device)
-
-        else:
             self.y = self.y.to(device)
 
-    def convertion(self, what):
+    def conversion(self, new_type='f'):
+
+        if new_type == 'f':
+            self.X = self.X.type(torch.float32)
+            self.y = self.y.type(torch.float32)
         
-        if what == 0:
-            self.y = self.y.type(torch.DoubleTensor)
+        elif new_type == 'd':
+            self.X = self.X.type(torch.float64)
+            self.y = self.y.type(torch.float64)
         
         else:
-            self.X = self.X.type(torch.DoubleTensor)
+            raise Exception('Invalid type')
 
     def resize(self, resize, interp=None):
         transform = transforms.Resize(resize,antialias=True)
         self.X = transform(self.X)
         self.y = transform(self.y)
+
+    def set_grad(self):
+        self.X.requires_grad = True
 
 
 # This function import the dataset as a two lists of nparray: X = images, y = labels 
