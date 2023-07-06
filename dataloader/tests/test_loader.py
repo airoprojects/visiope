@@ -43,9 +43,9 @@ data_import = Ai4MarsImporter()
 X, y = data_import(path=data_path, num_of_images=200)
 
 
-# processor = Ai4MarsProcessor(X, y)
+processor = Ai4MarsProcessor(X, y)
 
-# train_set, test_set, val_set = processor([0.54, 0.26, 0.20])
+train_set, test_set, val_set = processor([0.54, 0.26, 0.20])
 
 # print(len(train_set))
 # print(type(train_set))
