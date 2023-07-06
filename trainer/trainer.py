@@ -9,11 +9,12 @@ from datetime import datetime
 class Ai4MarsTrainer():
 
     # Initialization of training parameters in the class constructor
-    def __init__(self, loss_fn, optimizer, train_loader, test_loader):
+    def __init__(self, loss_fn, optimizer, train_loader, test_loader, device):
         self.loss_fn = loss_fn
         self.optimizer = optimizer
         self.train_loader = train_loader
         self.test_loader = test_loader
+        self.device = device
 
     # This function implements training for just one epoch
     def train_one_epoch(self, model, epoch_index=0):
@@ -28,8 +29,8 @@ class Ai4MarsTrainer():
             self.optimizer.zero_grad()
             
             # 
-            inputs = inputs.to(device)
-            labels = labels.to(device)
+            inputs = inputs.to(self.device)
+            labels = labels.to(self.device)
 
             # Make predictions for this batch
             outputs = model(inputs)
