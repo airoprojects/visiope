@@ -54,10 +54,10 @@ class Ai4MarsTrainer():
             #report_index = len(self.train_loader) -1 
 
             # free VRAM
-            image.detach()
-            label.detach()
-            del label
-            del image 
+            inputs.detach()
+            labels.detach()
+            del inputs
+            del labels
            
         # Compute the average loss over all batches
         last_loss =  accumulated_loss / batch_index+1 
