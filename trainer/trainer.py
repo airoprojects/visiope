@@ -28,7 +28,7 @@ class Ai4MarsTrainer():
             # Zero your gradients for every batch!
             self.optimizer.zero_grad()
             
-            # 
+            # Send inputs and labels to GPU
             inputs = inputs.to(self.device)
             labels = labels.to(self.device)
 
@@ -53,7 +53,7 @@ class Ai4MarsTrainer():
             accumulated_loss += loss.item()
             #report_index = len(self.train_loader) -1 
 
-            # free VRAM
+            # Free VRAM
             inputs.detach()
             labels.detach()
             del inputs
