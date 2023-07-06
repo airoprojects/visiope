@@ -67,11 +67,12 @@ class Ai4MarsImporter():
         self.dataset = dataset_name
         ...
 
-    def __call__(self, path='./', IN_COLAB=False, num_of_images=200): 
+    def __call__(self, path='./', IN_COLAB=False, num_of_images=200, save_path=None): 
         print(f'This are the import parameters: \n \
               Path to the dataset: {path} \n \
               Colab Environment: {IN_COLAB} \n \
-              Number of images to load: {num_of_images} \n'
+              Number of images to load: {num_of_images} \n \
+              Saving path for X and y: {save_path}'
               )
 
         if not IN_COLAB:
@@ -201,6 +202,13 @@ class Ai4MarsImporter():
         print(f"Inputs len: {len(X)}")
         print(f"Labels len: {len(y)}")
         print("Done")
+
+        if save_path:
+            print(f"Your dataset will be saved in two different files in: {save_path}")
+
+            np.save(save_path + 'X', X)
+            np.save(save_path + 'y', y)
+
         return X, y
 
 # This class perform : Random Split, Normalization and Data Augmentation

@@ -8,18 +8,18 @@ from datetime import datetime
 class Ai4MarsTrainer():
 
     # Initialization of training parameters in the class constructor
-    def __init__(self, loss_fn, optimizer, training_set, test_set):
+    def __init__(self, loss_fn, optimizer, train_loader, test_loader):
         self.loss_fn = loss_fn
         self.optimizer = optimizer
-        self.training_set = training_set
-        self.test_set = test_set
+        self.train_loader = train_loader
+        self.test_loader = test_loader
 
     # This function implements training for just one epoch
     def train_one_epoch(self, model, epoch_index=0):
         accumulated_loss = 0.
         last_loss = 0.
 
-        for batch_index, batch in enumerate(self.training_set):
+        for batch_index, batch in enumerate(self.train_loader):
             # Every data instance is an (input, label) pair
             inputs, labels = batch
 
@@ -45,7 +45,7 @@ class Ai4MarsTrainer():
             self.optimizer.step()
                         
             accumulated_loss += loss.item()
-            #report_index = len(self.training_set) -1   
+            #report_index = len(self.train_loader) -1   
            
         # Compute the average loss over all batches
         last_loss =  accumulated_loss / batch_index+1 
@@ -73,7 +73,7 @@ class Ai4MarsTrainer():
 
             # Test loss
             accumulated_tloss = 0.0
-            for tbatch_index, tbatch in enumerate(self.test_set):
+            for tbatch_index, tbatch in enumerate(self.test_loader):
 
                 # Every data instance is a (input, label) pair
                 tinputs, tlabels = tbatch
