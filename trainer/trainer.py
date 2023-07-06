@@ -5,6 +5,7 @@ import torch
 from pathlib import Path
 from datetime import datetime
 
+# This class collects all the training functionalities to train different models
 class Ai4MarsTrainer():
 
     # Initialization of training parameters in the class constructor

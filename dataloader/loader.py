@@ -60,7 +60,7 @@ class Ai4MarsData(Dataset):
         self.X.requires_grad = True
 
 
-# This function import the dataset as a two lists of nparray: X = images, y = labels 
+# This class import the dataset as a two lists of nparray: X = images, y = labels 
 class Ai4MarsImporter():
 
     def __init__(self, dataset_name='ai4mars-dataset-merged-0.1'):
