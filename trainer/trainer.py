@@ -26,6 +26,10 @@ class Ai4MarsTrainer():
 
             # Zero your gradients for every batch!
             self.optimizer.zero_grad()
+            
+            # 
+            inputs = inputs.to(device)
+            labels = labels.to(device)
 
             # Make predictions for this batch
             outputs = model(inputs)
@@ -46,7 +50,13 @@ class Ai4MarsTrainer():
             self.optimizer.step()
                         
             accumulated_loss += loss.item()
-            #report_index = len(self.train_loader) -1   
+            #report_index = len(self.train_loader) -1 
+
+            # free VRAM
+            image.detach()
+            label.detach()
+            del label
+            del image 
            
         # Compute the average loss over all batches
         last_loss =  accumulated_loss / batch_index+1 
