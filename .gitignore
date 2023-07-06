@@ -172,3 +172,11 @@ dataloader/data_loader.pkl
 
 # NP tensors for test
 /loss/test/*.pt
+
+# tests
+tests/
+dataloader/tests/
+trainer/tests
+
+# old versions
+OLD
