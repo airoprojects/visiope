@@ -74,6 +74,10 @@ class Ai4MarsImporter():
               Number of images to load: {num_of_images} \n \
               Saving path for X and y: {save_path}'
               )
+        
+        # Allow to process all the images in the dataset
+        if num_of_images == 'all' and self.dataset == 'ai4mars-dataset-merged-01':
+            num_of_images = 16064
 
         if not IN_COLAB:
             is_here = os.path.exists(path + self.dataset)
@@ -146,42 +150,46 @@ class Ai4MarsImporter():
         # Images and labels paths
         images = path + "ai4mars-dataset-merged-0.1/msl/images"
         label_train = path + "ai4mars-dataset-merged-0.1/msl/labels/train"
-        label_test_1ag = path + "ai4mars-dataset-merged-0.1/msl/labels/test/masked-gold-min1-100agree"
-        label_test_2ag = path + "ai4mars-dataset-merged-0.1/msl/labels/test/masked-gold-min2-100agree"
-        label_test_3ag = path + "ai4mars-dataset-merged-0.1/msl/labels/test/masked-gold-min3-100agree"
         edr = images + "/edr"
-        mxy = images + "/mxy"
-        rng = images + "/rng-30m"
 
         # In this way we collect list of al files in the projects
         edr_files = os.listdir(edr)
         label_train_files = os.listdir(label_train)
-        label_test_files_1 = os.listdir(label_test_1ag)
-        label_test_files_2 = os.listdir(label_test_2ag)
-        label_test_files_3 = os.listdir(label_test_3ag)
 
         X = []  # input
         y = []  # label train
 
-        y1 = [] #test label 1 agree
-        y2 = [] #test label 2 agree
-        y3 = [] #test label 3 agree
-
         image_counter = 0 # this count how many images insert
 
-        for label1, label2, label3 in zip(label_test_files_1, label_test_files_2, label_test_files_3):
-            path_label1 = os.path.join(label_test_1ag, label1)
-            img_arr = cv2.imread(path_label1, 0) 
-            y1.append(img_arr)
+        # This part is experimental
+        # label_test_1ag = path + "ai4mars-dataset-merged-0.1/msl/labels/test/masked-gold-min1-100agree"
+        # label_test_2ag = path + "ai4mars-dataset-merged-0.1/msl/labels/test/masked-gold-min2-100agree"
+        # label_test_3ag = path + "ai4mars-dataset-merged-0.1/msl/labels/test/masked-gold-min3-100agree"
+        # mxy = images + "/mxy"
+        # rng = images + "/rng-30m"
 
-            path_label2 = os.path.join(label_test_2ag, label2)
-            img_arr = cv2.imread(path_label2, 0) 
-            y2.append(img_arr)
+        # label_test_files_1 = os.listdir(label_test_1ag)
+        # label_test_files_2 = os.listdir(label_test_2ag)
+        # label_test_files_3 = os.listdir(label_test_3ag)
 
-            path_label3 = os.path.join(label_test_3ag, label3)
-            img_arr = cv2.imread(path_label3, 0)
-            y3.append(img_arr)
+        # y1 = [] #test label 1 agree
+        # y2 = [] #test label 2 agree
+        # y3 = [] #test label 3 agree
 
+        # for label1, label2, label3 in zip(label_test_files_1, label_test_files_2, label_test_files_3):
+        #     path_label1 = os.path.join(label_test_1ag, label1)
+        #     img_arr = cv2.imread(path_label1, 0) 
+        #     y1.append(img_arr)
+
+        #     path_label2 = os.path.join(label_test_2ag, label2)
+        #     img_arr = cv2.imread(path_label2, 0) 
+        #     y2.append(img_arr)
+
+        #     path_label3 = os.path.join(label_test_3ag, label3)
+        #     img_arr = cv2.imread(path_label3, 0)
+        #     y3.append(img_arr)
+        #
+        
         for label in label_train_files:
             # Names of images match names of labels, except for the extension (JPG, png)
             img_name = label[:-4] + ".JPG" 
@@ -323,6 +331,10 @@ class Ai4MarsProcessor():
                 datasets.append(Ai4MarsData(subsets_X[i], subsets_y[i]))
 
         return datasets
+    
+
+class Ai4MarsLightProcessor():
+    ...
     
 if __name__ == '__main__':
     ...

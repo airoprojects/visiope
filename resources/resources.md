@@ -18,3 +18,5 @@
 - Example of different loss functions [link](https://arxiv.org/abs/2006.14822) [github](https://github.com/shruti-jadon/Semantic-Segmentation-Loss-Functions)
 
 - https://arxiv.org/pdf/1708.02002v2.pdf
+
+- https://arxiv.org/abs/1708.02002
