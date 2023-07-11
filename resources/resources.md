@@ -20,3 +20,18 @@
 - https://arxiv.org/pdf/1708.02002v2.pdf
 
 - https://arxiv.org/abs/1708.02002
+
+- Dice Loss 
+
+- Jaccard Loss
+
+
+**Metrics: ***
+
+- https://towardsdatascience.com/metrics-to-evaluate-your-semantic-segmentation-model-6bcb99639aa2
+
+- FLOP: (Floating Point Operations) in semantic segmentation refer to the number of floating-point operations required to perform the computations involved in the segmentation process. It is a measure of computational complexity and provides an estimate of the model's computational requirements.
+
+- Dice Coefficient (F1 Score)
+
+- Jaccard Index
