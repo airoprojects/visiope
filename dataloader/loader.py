@@ -67,19 +67,26 @@ class Ai4MarsImporter():
         self.dataset = dataset_name
         ...
 
-    def __call__(self, path='./', IN_COLAB=False, num_of_images=200, save_path=None): 
+    def __call__(self, path='./', num_of_images=200, save_path=None): 
+
+        import sys
+        COLAB = 'google.colab' in sys.modules
+        LOCAL = not(COLAB)
+
         print(f'This are the import parameters: \n \
               Path to the dataset: {path} \n \
-              Colab Environment: {IN_COLAB} \n \
+              Colab Environment: {COLAB} \n \
               Number of images to load: {num_of_images} \n \
               Saving path for X and y: {save_path}'
               )
+        
+
         
         # Allow to process all the images in the dataset
         if num_of_images == 'all' and self.dataset == 'ai4mars-dataset-merged-01':
             num_of_images = 16064
 
-        if not IN_COLAB:
+        if LOCAL:
             is_here = os.path.exists(path + self.dataset)
 
             if is_here:
@@ -88,7 +95,7 @@ class Ai4MarsImporter():
             else:
                 raise FileNotFoundError(self.dataset)
 
-        else: # IN_COLAB
+        elif COLAB:
 
             # path = '/content/drive/MyDrive/Dataset/'
 
@@ -144,6 +151,8 @@ class Ai4MarsImporter():
                                 zip_ref.extract(member, path)
                             except zipfile.error as e:
                                 pass
+        else:
+            raise Exception('Unknown Environment')
 
         print(f"Unpacking images and lables from: {self.dataset}...")
 
