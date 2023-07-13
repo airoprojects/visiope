@@ -17,6 +17,8 @@ class Ai4MarsTrainer():
         self.device = device
         self.save_state = save_state
         self.transform = transform
+        self.loss_list = []
+        self.tloss_list = []
 
     # This function implements training for just one epoch
     def train_one_epoch(self, model, epoch_index=0):
@@ -95,8 +97,8 @@ class Ai4MarsTrainer():
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         epoch_number = 0 # just a counter
         best_vloss = 1_000_000.
-        loss_list = []
-        tloss_list = []
+        self.loss_list = []
+        self.tloss_list = []
 
         for epoch in range(EPOCHS):
             # Make sure gradient tracking is on, and do a pass over the data
@@ -139,6 +141,7 @@ class Ai4MarsTrainer():
                 vlabels.detach()
                 del vinputs
                 del vlabels
+                torch.cuda.empty_cache()
 
             # Compute the average loss over all batches
             avg_vloss = running_vloss / (vbatch_index + 1)
@@ -149,19 +152,17 @@ class Ai4MarsTrainer():
             print(f'LOSS ON VALIDATION: {avg_vloss}')
 
             # Save loss in a list to then perform metrics evaluation
-            loss_list.append((avg_loss[0], end-start))
+            self.loss_list.append((avg_loss[0], end-start))
             
             # If online data augmentation has been performed:
             if avg_loss[1]:
-                tloss_list.append((avg_loss[1], end-start))
+                self.tloss_list.append((avg_loss[1], end-start))
 
             # Track best performance, and save the model's state
             if avg_vloss < best_vloss:
                 best_vloss = avg_vloss
                 model_path = self.save_state + 'model_{}_{}'.format(timestamp, epoch_number)
                 torch.save(model.state_dict(), model_path)
-
-        return loss_list
 
 if __name__ == '__main__':
     pass
