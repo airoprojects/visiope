@@ -77,14 +77,14 @@ class Ai4MarsTrainer():
             del labels
 
         # Compute the average loss over all batches
-        last_loss =  running_loss / (batch_index+1)
+        last_loss =  running_loss / (batch_index + 1)
 
         # Print report at the end of the last batch
         print(f'Epoch {epoch_index+1}')
         print(f'LOSS ON TRAIN: {last_loss}')
         
         if self.transform:
-            last_tloss = running_tloss / (t_index+1)
+            last_tloss = running_tloss / (t_index + 1)
             print(f'LOSS ON TRANSFORMED-TRAIN: {last_tloss}')
 
         else:

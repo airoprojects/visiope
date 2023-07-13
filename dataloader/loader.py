@@ -73,12 +73,11 @@ class Ai4MarsImporter():
         COLAB = 'google.colab' in sys.modules
         LOCAL = not(COLAB)
 
-        print(f'This are the import parameters: \n \
+        print(f"This are the import parameters: \n \
               Path to the dataset: {path} \n \
               Colab Environment: {COLAB} \n \
               Number of images to load: {num_of_images} \n \
-              Saving path for X and y: {save_path}'
-              )
+              Saving path for X and y: {save_path}")
         
 
         
@@ -218,7 +217,6 @@ class Ai4MarsImporter():
             
         print(f"Inputs len: {len(X)}")
         print(f"Labels len: {len(y)}")
-        print("Done")
 
         if save_path:
             print(f"Your dataset will be saved in two different files in: {save_path}")
@@ -226,15 +224,24 @@ class Ai4MarsImporter():
             np.save(save_path + 'X', X)
             np.save(save_path + 'y', y)
 
+        print("Done\n")
+
         return X, y
 
 # This class perform : Random Split, Normalization and Data Augmentation
 class Ai4MarsProcessor():
 
-    def __init__(self):
+    def __init__(self, dataset_name='ai4mars-dataset-merged-0.1'):
+        self.dataset = dataset_name
         ...
 
     def __call__(self, X, y, percentages=None, transform=None):
+
+        # Function parameters
+        print(f"Begin processing: \n \
+              Dataset: {self.dataset} \n \
+              Split percentages: {percentages} \n \
+              Transformation: {transform}")
 
         datasets = []
 
@@ -290,7 +297,7 @@ class Ai4MarsProcessor():
         subsets_y = [[] for i in range(len(subsets_indices))]
         i = 0
 
-        # Splitting of dataset into subsets
+        # Split of dataset into subsets
         for indices in subsets_indices:
 
             for index in indices:
@@ -298,7 +305,7 @@ class Ai4MarsProcessor():
                 subsets_y[i].append(y[index])
             i += 1
 
-        # convertion to np array and Normalization                   
+        # Convertion to np array and Normalization                   
         for i in range(len(subsets_X)):
             subsets_X[i] = np.asanyarray(subsets_X[i], dtype= np.float32) / 255
             subsets_y[i] = np.array(subsets_y[i], dtype= np.int64)
@@ -314,6 +321,7 @@ class Ai4MarsProcessor():
 
         # Data Augmentation
         if transform:
+            print(f'Performing data augmentation with: {transform}')
 
             for tensor_X, tensor_y in zip(subsets_X[0], subsets_y[0]):
                 # Save the state of the tensors
@@ -339,6 +347,7 @@ class Ai4MarsProcessor():
             else:
                 datasets.append(Ai4MarsData(subsets_X[i], subsets_y[i]))
 
+        print("Done\n")
         return datasets
     
 
