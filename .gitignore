@@ -162,6 +162,9 @@ cython_debug/
 
 # Project dependent files to ignore:
 
+# VSCode
+.vscode
+
 # SegFormer directories
 Models/semantic-segmentation
 models/semantic-segmentation

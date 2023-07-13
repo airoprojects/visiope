@@ -61,25 +61,28 @@ class Ai4MarsDataset(Dataset):
 # This class import the dataset as a two lists of nparray: X = images, y = labels 
 class Ai4MarsDownload():
 
-    def __call__(self, PATH='./', NUM_IMAGES=200, SAVE_PATH=None): 
+    def __init__(self) -> None:
+        pass
 
-        DATASET = 'ai4mars-dataset-merged-0.1'
+    def __call__(self, PATH:str='./', NUM_IMAGES:int=200, SAVE_PATH:str=None): 
 
         import sys
         COLAB = 'google.colab' in sys.modules
         LOCAL = not(COLAB)
 
+        DATASET = 'ai4mars-dataset-merged-0.1'
+
         # Downloading Phase
-        print(f'This are the import parameters: \n \
-              Dataset: {DATASET}
+        print(f"This are the import parameters: \n \
+              Dataset: {DATASET} \n \
               Path to the dataset: {PATH} \n \
               Colab Environment: {COLAB} \n \
               Number of images to load: {NUM_IMAGES} \n \
-              Saving path for X and y: {SAVE_PATH}'
+              Saving path for X and y: {SAVE_PATH}"
               )
         
         # Allow to process all the images in the dataset
-        if NUM_IMAGES== 'all': NUM_IMAGES = 16064
+        if NUM_IMAGES == 'all': NUM_IMAGES = 16064
 
         # # Check if the dataset is already in PATH
         is_here = os.path.exists(PATH + DATASET)
@@ -122,7 +125,7 @@ class Ai4MarsDownload():
                     with zipfile.ZipFile(zip_file, 'r') as zip_ref:
                         for member in tqdm(zip_ref.infolist(), desc='Extracting '):
                             try:
-                                zip_ref.extract(member, path)
+                                zip_ref.extract(member, PATH)
                             except zipfile.error as e:
                                 pass
 
@@ -142,7 +145,7 @@ class Ai4MarsDownload():
                     with zipfile.ZipFile(zip_file, 'r') as zip_ref:
                         for member in tqdm(zip_ref.infolist(), desc='Extracting '):
                             try:
-                                zip_ref.extract(member, path)
+                                zip_ref.extract(member, PATH)
                             except zipfile.error as e:
                                 pass
         
@@ -179,7 +182,7 @@ class Ai4MarsDownload():
                 X.append(x_t)
 
                 y_t = torch.from_numpy(lab_arr[:, :, np.newaxis])
-                y_t[y_t == 255] = 4 # reassigment of background
+                y_t[y_t == 255] = 4 # reassigment for background
                 y.append(y_t)
 
                 # free up some memory
@@ -187,45 +190,66 @@ class Ai4MarsDownload():
                 del lab_arr
             
                 image_counter += 1  # this control how much images you want
-                if image_counter == num_of_images: break
+                if image_counter == NUM_IMAGES: break
             
         print(f"Inputs len: {len(X)}")
         print(f"Labels len: {len(y)}")
 
-        print("Converting inputs and labels in torch tensors ...")
+        print("Converting inputs and labels into torch tensors ...")
         X = torch.stack(X, dim=0)
         y = torch.stack(y, dim=0)
         print("Done")
 
         if SAVE_PATH:
-            print(f"Your dataset will be saved in two different files in: {SAVE_PATH}")
+            print(f"{DATASET} will be saved inside two different 'pt' files in: {SAVE_PATH}")
             torch.save(X, SAVE_PATH + 'X.pt')
             torch.save(y, SAVE_PATH + 'y.pt')
 
         return X, y
 
 # This class perform Random Split and Data Augmentation
-class Ai4MarsProcessor():
+class Ai4MarsSplitter():
 
-    def __init__(self):
-        ...
+    def __init__(self) -> None:
+        pass
 
-    def __call__(self, X, y, percentages=None, transform=None):
+    def __call__(self, X, y, percentages:list=None, transform=None, SAVE_PATH:str=None):
+
+        import sys
+        COLAB = 'google.colab' in sys.modules
+        LOCAL = not(COLAB)
+        
+        DATASET = 'ai4mars-dataset-merged-0.1'
+
+        print(f"Begin processing: \n \
+            Dataset: {DATASET} \n \
+            Colab environment: {COLAB} \n \
+            Split percentages: {percentages} \n \
+            Transformation: {transform}")
+        
+        if COLAB:
+            answ = str(input("Do you want to perform a lighter processing for the data? ")).lower()
+            if answ in ['yes', 'y', 'si', 's']:
+                from torch.utils.data import random_split
+                dataset = Ai4MarsDataset(X, y)
+                return random_split(dataset, percentages)
 
         datasets = []
 
-        # If no percentual are given the data are not splitted and only one
+        # If no percentages are given the data are not splitted and only one
         # Dataset object is returned. In this case no transformations are applied
         if not percentages:
-            datasets.append(Ai4MarsData(Xt, yt))
+            datasets.append(Ai4MarsDataset(X, y))
             return datasets[0]
 
         # uncomment this to obtain the same split each experiment
         #random.seed(10)
 
         # assertions
-        assert math.ceil(sum(percentages)) == 1.
-        assert len(X) == len(y)
+        assert math.ceil(sum(percentages)) == 1. , 'Percentages should sum to 1'
+        assert len(X) == len(y), 'Len of Inputs and Labels must be the same'
+
+        print("Splitting in progress ...")
 
         dataset_len = len(X)
         subsets_lens = []
@@ -268,8 +292,8 @@ class Ai4MarsProcessor():
 
         # Convertion to torch tensors
         for i in range(len(subsets_X)):                             
-            subsets_X[i] = torch.stack(subsets_X[i], dim=0).permute(0,3,2,1)
-            subsets_y[i] = torch.stack(subsets_y[i], dim=0).permute(0,3,2,1)
+            subsets_X[i] = torch.stack(subsets_X[i], dim=0) #.permute(0,3,2,1)
+            subsets_y[i] = torch.stack(subsets_y[i], dim=0) #.permute(0,3,2,1)
 
         augmentation_X = []
         augmentation_y = []
@@ -292,23 +316,28 @@ class Ai4MarsProcessor():
             augmentation_y = torch.stack(augmentation_y, dim=0)
             augmented_set_y = torch.cat((subsets_y[0], augmentation_y[:100]),0)
 
-        # Creation of datasets
+        # Datasets
         for i in range(len(subsets_X)):
 
             if transform and i == 1:
-                datasets.append(Ai4MarsData(augmented_set_X, augmented_set_y))
+                datasets.append(Ai4MarsDataset(augmented_set_X, augmented_set_y))
             
             else:
-                datasets.append(Ai4MarsData(subsets_X[i], subsets_y[i]))
+                datasets.append(Ai4MarsDataset(subsets_X[i], subsets_y[i]))
 
+        if SAVE_PATH:
+            print(f"The Ai4MarsDatasets will be saved here: {SAVE_PATH}")
+
+            for i, data in enumerate(datasets):
+                torch.save(data, SAVE_PATH + str(i+1) + '.pt')
+
+        print("Done")
         return datasets
     
 
-class Ai4MarsLightProcessor():
-    ...
-
-
 class Ai4MarsLoad():
+
+    import sys
     COLAB = 'google.colab' in sys.modules
     LOCAL = not(COLAB)
 
