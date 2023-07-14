@@ -4,8 +4,9 @@ import math
 import torch
 import random
 import numpy as np
+from typing import Any
 import torchvision.transforms as transforms
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 
 # This class rappresents the dataset
 class Ai4MarsDataset(Dataset):
@@ -292,8 +293,8 @@ class Ai4MarsSplitter():
 
         # Convertion to torch tensors
         for i in range(len(subsets_X)):                             
-            subsets_X[i] = torch.stack(subsets_X[i], dim=0) #.permute(0,3,2,1)
-            subsets_y[i] = torch.stack(subsets_y[i], dim=0) #.permute(0,3,2,1)
+            subsets_X[i] = torch.stack(subsets_X[i], dim=0).permute(0,3,2,1)
+            subsets_y[i] = torch.stack(subsets_y[i], dim=0).permute(0,3,2,1)
 
         augmentation_X = []
         augmentation_y = []
@@ -328,11 +329,51 @@ class Ai4MarsSplitter():
         if SAVE_PATH:
             print(f"The Ai4MarsDatasets will be saved here: {SAVE_PATH}")
 
+            names = ['train', 'test', 'val']
+
             for i, data in enumerate(datasets):
-                torch.save(data, SAVE_PATH + str(i+1) + '.pt')
+                torch.save(data, SAVE_PATH + names[i%3] + '_' + str(i // 3) + '.pt')
 
         print("Done")
         return datasets
+    
+class Ai4MarsDataloader():
+
+    def __init__(self) -> None:
+        pass
+
+    def __call__(self, datasets=None, batch_sizes:list=[32,32,32], SIZE:int=None, 
+                 TYPE:str='f', SAVE_PATH:str=None) -> Any:
+        
+        assert len(datasets) == len(batch_sizes), 'You must provide a batch size for each Dataloader'
+
+        print("Building Dataloaders")
+        
+        dataloaders = []
+
+        # Resize images and labels to fit in RAM
+        if SIZE:
+            for dataset in datasets:
+                dataset.resize(SIZE)
+        
+        # Convert dataset to float tensors to be on the safe side
+        for b, dataset in enumerate(datasets):
+            dataset.conversion(TYPE)
+            dataset.set_grad()  # Enable Gradient to be on the safe side
+            dataloaders.append(DataLoader(dataset, batch_sizes[b], shuffle=True))
+
+
+        if SAVE_PATH:
+            print(f"The Ai4MarsDataloaders will be saved here: {SAVE_PATH}")
+
+            names = ['train', 'test', 'val']
+
+            for i, dataloader in enumerate(dataloaders):
+                torch.save(dataloaders, SAVE_PATH + names[i%3] + '_' + str(i//3) + '.pt')
+
+        print("Done")
+
+        return dataloaders
     
 if __name__ == '__main__':
     ...
