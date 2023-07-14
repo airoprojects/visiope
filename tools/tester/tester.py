@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 import torchmetrics as metrics
 
-class Ai4MarsTrainer():
+class Ai4MarsTester():
 
     def __init__(self, loss_fn, test_loader=None, device='cpu') -> None:
         self.loss_fn = loss_fn
