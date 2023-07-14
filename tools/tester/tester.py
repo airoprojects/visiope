@@ -27,7 +27,7 @@ class Ai4MarsTester():
 
             outputs = model(inputs)
 
-            # New shape: B x C x W x H
+            # New shape: B x W x H x C
             outputs = outputs.permute(0,2,1,3).permute(0,1,3,2)
 
             labels = labels.squeeze()
