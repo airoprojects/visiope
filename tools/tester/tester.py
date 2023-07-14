@@ -4,8 +4,9 @@ import torchmetrics as metrics
 
 class Ai4MarsTester():
 
-    def __init__(self, loss_fn, test_loader=None, device='cpu') -> None:
+    def __init__(self, loss_fn, metric, test_loader=None, device='cpu') -> None:
         self.loss_fn = loss_fn
+        self.metric = metric
         self.test_loader = test_loader
         self.device  = device
         pass
@@ -63,10 +64,12 @@ class Ai4MarsTester():
         total_outputs = F.softmax(total_outputs, dim=-1)
         total_labels = F.one_hot(total_labels, num_classes=total_outputs.shape[-1])
 
-        # Jaccard Index metrics
-        jaccard = metrics(total_outputs.reshape(-1), total_labels.reshape(-1))
+        # Index metrics
+        index = self.metric(total_outputs.reshape(-1), total_labels.reshape(-1))
 
-        print(f"JACCARD: {jaccard}")
+        print(f"INDEX: {index}")
+
+        return last_loss, index
 
 
         
