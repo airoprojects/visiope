@@ -17,10 +17,10 @@ from torch.utils.data import DataLoader
 COLAB = 'google.colab' in sys.modules
 LOCAL = not COLAB
 
-if COLAB
+if COLAB:
 
     # Clone visiope repo on runtime env
-    !git clone https://github.com/airoprojects/visiope.git
+    !git clone https://github.com/airoprojects/visiope.git /content/visiope/
 
     # Add custom modules to path
     custom_modules_path = '/content/visiope/tools/'
@@ -62,25 +62,25 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 ```
 # Dataloader
 
-LOAD = True
+LOAD = False
 
 if LOAD:
 
-    if not(os.path.exists('/content/dataset/'):
+    if not(os.path.exists('/content/dataset/')):
 
         import gdown
 
         # get url of torch dataset (temporarerly my drive)
-        url_X_200 = 'https://drive.google.com/uc?id=1HLAQgjZbGa3lMzdyIvgykCiUJ6P4OaEX'
-        url_y_200 = 'https://drive.google.com/uc?id=1Ue74LEe0WlEnFxRcIl19WyvXR1EyYIsS'
-
-        url_X_1000 = 'https://drive.google.com/uc?id=1zvXKK1qc2PNbAMyq0XWfqrhAWB5kO3yO'
-        url_y_1000 = 'https://drive.google.com/uc?id=1gmnWAGjZJYt-VIpWRK_cEOXQfFfuFAwe'
+        drive = 'https://drive.google.com/uc?id='
+        url_train = drive + '1ICj2t8hMoaSy-3wWNP4Fe-j_AohAifms'
+        url_test = drive + '1ioNdobI4XwTKslIQwffvNmcE07WyvGrv'
+        url_val = drive + '1aCSj8SK4kl6jxDAcNLBiBJwxQJ6O6-DG'
 
         # download np dataset on runtime env
         data_path = '/content/dataset/'
-        gdown.download(url_X_200, data_path, quiet=False)
-        gdown.download(url_y_200, data_path, quiet=False)
+        gdown.download(url_train, data_path, quiet=False)
+        gdown.download(url_test, data_path, quiet=False)
+        gdown.download(url_val, data_path, quiet=False)
 
     train_set = torch.load("/content/dataset/train.pt")
     val_set = torch.load("/content/dataset/val.pt")
@@ -94,34 +94,18 @@ elif LOCAL or not LOAD:
     # Insert here the number of images you want to download
     num_images = int(input("Number of images (max 1000): "))
 
+    # Insert here your local path to the dataset (temporary)
+    save_path = input("Path to Save the Dataset: ")
+    
     if num_images > 1000 : raise Exception("Trying to import too many images")
 
     # Import data as Ai4MarsDataset
     importer = Ai4MarsDownload()
-    X, y = importer(PATH=data_path, NUM_IMAGES=100)
+    X, y = importer(PATH=data_path, NUM_IMAGES=num_images)
 
     # Split the dataset
     splitter = Ai4MarsSplitter()
-    train_set, test_set, val_set = splitter(X, y, [0.7, 0.2, 0.1])
+    train_set, test_set, val_set = splitter(X, y, [0.7, 0.2, 0.1], SAVE_PATH=sav)
 
-# Resize images and labels to fit in RAM
-train_set.resize(64)
-test_set.resize(64)
-val_set.resize(64)
-
-# Convert dataset to float tensors to be on the safe side
-train_set.conversion('f')
-test_set.conversion('f')
-val_set.conversion('f')
-
-# Enable Gradient to be on the safe side
-train_set.set_grad()
-test_set.set_grad()
-val_set.set_grad()
-
-# Making of dataloader
-train_loader = DataLoader(train_set, batch_size=8, shuffle=True)
-test_loader = DataLoader(test_set, batch_size=2, shuffle=True)
-val_loader = DataLoader(val_set, batch_size=2, shuffle=True)
 
 ```
