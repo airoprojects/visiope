@@ -2,14 +2,16 @@
 
 import torch
 import time
+import numpy as np
 from datetime import datetime 
+import matplotlib.pyplot as plt
 
 # This class collects all the training functionalities to train different models
 class Ai4MarsTrainer():
 
     # Initialization of training parameters in the class constructor
     def __init__(self, loss_fn, optimizer, train_loader, val_loader,
-                 transform=None, device='cpu', save_state=None):
+                 transform=None, device='cpu', save_state='./'):
         self.loss_fn = loss_fn
         self.optimizer = optimizer
         self.train_loader = train_loader
@@ -48,8 +50,13 @@ class Ai4MarsTrainer():
             labels = labels.squeeze()
             labels = labels.long()
 
+            # New shape: B x C x W x H
+            outputs = outputs.permute(0,2,1,3).permute(0,1,3,2)
+
             # Compute the loss and its gradients
             loss = self.loss_fn(outputs, labels)
+
+            # Compute loss gradient
             loss.backward()
 
             # Adjust learning weights
@@ -63,6 +70,7 @@ class Ai4MarsTrainer():
                 tinputs = tinputs.to(self.device)
                 self.optimizer.zero_grad()
                 toutputs = model(tinputs)
+                toutputs = toutputs.permute(0,2,1,3).permute(0,1,3,2)
                 tloss = self.loss_fn(toutputs, labels)
                 tloss.backward()
                 running_tloss = tloss.item()
@@ -77,7 +85,7 @@ class Ai4MarsTrainer():
             del labels
 
         # Compute the average loss over all batches
-        last_loss =  running_loss / (batch_index+1)
+        last_loss =  (running_loss) / (batch_index+1)
 
         # Print report at the end of the last batch
         print(f'Epoch {epoch_index+1}')
@@ -101,22 +109,24 @@ class Ai4MarsTrainer():
         self.tloss_list = []
 
         for epoch in range(EPOCHS):
+
             # Make sure gradient tracking is on, and do a pass over the data
-            model.train(True)
+            model.train()
 
             # Start monitoring training time
             start = time.time()
 
             avg_loss = self.train_one_epoch(model, epoch)
 
+            # Endo monitoring time
             end = time.time()
 
             # We don't need gradients on to do reporting
-            model.train(False)
+            model.eval()
 
             # Test loss
             running_vloss = 0.0
-            for vbatch_index, vbatch in enumerate(self.test_loader):
+            for vbatch_index, vbatch in enumerate(self.val_loader):
 
                 # Every data instance is a (input, label) pair
                 vinputs, vlabels = vbatch
@@ -127,6 +137,9 @@ class Ai4MarsTrainer():
 
                 # Model prediction
                 voutputs = model(vinputs)
+
+                # New shape: B x C x W x H
+                voutputs = voutputs.permute(0,2,1,3).permute(0,1,3,2)
 
                 # Send inputs and labels to GPU (or whatever device is)
                 vlabels = vlabels.squeeze()
@@ -163,6 +176,18 @@ class Ai4MarsTrainer():
                 best_vloss = avg_vloss
                 model_path = self.save_state + 'model_{}_{}'.format(timestamp, epoch_number)
                 torch.save(model.state_dict(), model_path)
+
+
+    def custom_plot(trainer):
+
+        trainer_list = np.array(trainer.loss_list)
+        plt.plot(trainer_list )
+        plt.title('Training Performances')
+        plt.xlabel('Epochs')
+        plt.ylabel('Losses')
+        plt.show()
+
+        print(trainer_list.mean())
 
 if __name__ == '__main__':
     pass
