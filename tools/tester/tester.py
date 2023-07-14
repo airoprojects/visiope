@@ -41,10 +41,10 @@ class Ai4MarsTester():
             running_loss += loss.item()
 
             # Free up RAM/VRAM
-            vinputs.detach()
-            vlabels.detach()
-            del vinputs
-            del vlabels
+            inputs.detach()
+            labels.detach()
+            del inputs
+            del labels
             torch.cuda.empty_cache()
 
         # Compute average loss over all batches
