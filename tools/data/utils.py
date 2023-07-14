@@ -365,11 +365,7 @@ class Ai4MarsDataloader():
 
         if SAVE_PATH:
             print(f"The Ai4MarsDataloaders will be saved here: {SAVE_PATH}")
-
-            names = ['train', 'test', 'val']
-
-            for i, dataloader in enumerate(dataloaders):
-                torch.save(dataloaders, SAVE_PATH + names[i%3] + '_' + str(i//3) + '.pt')
+            torch.save(dataloaders, SAVE_PATH + 'dataloaders' + '.pt')
 
         print("Done")
 
