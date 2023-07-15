@@ -68,16 +68,19 @@ class Ai4MarsTrainer():
             # if transformation exists apply them to the batch
             if self.transform:
                 tinputs = self.transform(inputs)
+                tlabels = self.transform(labels)
                 tinputs = tinputs.to(self.device)
                 self.optimizer.zero_grad()
                 toutputs = model(tinputs)
                 toutputs = toutputs.permute(0,2,1,3).permute(0,1,3,2)
-                tloss = self.loss_fn(toutputs, labels)
+                tloss = self.loss_fn(toutputs, tlabels)
                 tloss.backward()
                 running_tloss = tloss.item()
                 t_index += 1
                 tinputs.detach()
+                tlabels.detach()
                 del tinputs
+                del tlabels
 
             # Free up RAM/VRAM
             inputs.detach()
@@ -192,12 +195,14 @@ class Ai4MarsTrainer():
 
             import os 
 
-            SAVE_PATH = SAVE_PATH + 'dump/'
+            SAVE_PATH = SAVE_PATH + 'dump/loss/'
 
             if not os.path.exists(SAVE_PATH) : 
                 os.makedirs(SAVE_PATH)
 
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+
+            print(f"Data will be saved in {SAVE_PATH}")
 
             # Save loss on train and validation as np array for future valuations
             np.save(SAVE_PATH + 'loss_' + '{}.npy'.format(timestamp, model.backbone), loss_list)
@@ -212,7 +217,7 @@ class Ai4MarsTrainer():
         print(f'Validation mean loss: {vloss_list.mean()}')
 
     # Plot histogram of model parameters before and after taraining
-    def custom_hist(self, model, SAVE_PATH:str=None):
+    def custom_hist(self, model, SAVE_PATH:str=None, label:str=''):
 
         # Obtain the parameter values from the trained model
         parameters = []
@@ -242,15 +247,17 @@ class Ai4MarsTrainer():
 
             import os 
 
-            SAVE_PATH = SAVE_PATH + 'dump/'
+            SAVE_PATH = SAVE_PATH + 'dump/hist/'
 
             if not os.path.exists(SAVE_PATH) : 
                 os.makedirs(SAVE_PATH)
 
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 
+            print(f"Data will be saved in {SAVE_PATH}")
+
             # Save the plot to a file
-            plt.savefig(SAVE_PATH + 'loss_plot_' + '{}.png'.format(timestamp, model.backbone))
+            plt.savefig(SAVE_PATH + 'parameters_hist_' + label + '_{}.png'.format(timestamp, model.backbone))
 
         # Show the plot
         plt.show()
