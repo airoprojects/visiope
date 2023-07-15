@@ -168,6 +168,10 @@ cython_debug/
 # SegFormer directories
 Models/semantic-segmentation
 models/semantic-segmentation
+semantic-segmentation/
+
+# Dataset
+dataset/ 
 
 # Dataloader directoriese
 dataloader/ai4mars-dataset-merged-0.1
@@ -180,6 +184,9 @@ dataloader/data_loader.pkl
 tests/
 dataloader/tests/
 trainer/tests
+
+# experiments
+experiments/dump/
 
 # old versions
 OLD
