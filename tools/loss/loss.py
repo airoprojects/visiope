@@ -87,3 +87,5 @@ class Ai4MarsDiceLoss(nn.Module):
 
         return 1. - dice_score  # dice loss is 1 - dice score
     
+if __name__ == '__main__':
+    pass

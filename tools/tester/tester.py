@@ -1,3 +1,5 @@
+""" Tester module for MER-Segmentation 2.0 """
+
 import torch
 import torch.nn.functional as F
 import torchmetrics as metrics
@@ -68,3 +70,6 @@ class Ai4MarsTester():
         value = self.metric(total_outputs.reshape(-1), total_labels.reshape(-1))
 
         print(f"Metrics {self.metric}: {value.item()}")
+
+if __name__ == '__main__':
+    pass

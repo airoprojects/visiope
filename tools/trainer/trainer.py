@@ -175,7 +175,8 @@ class Ai4MarsTrainer():
                 model_path = self.save_state + 'model_{}_{}'.format(timestamp, epoch_number)
                 torch.save(model.state_dict(), model_path)
 
-    def custom_plot(trainer):
+    # Plot loss function on train set and validation set after training
+    def custom_plot(trainer, model=None, SAVE_PATH:str=None):
 
         loss_list = np.array(trainer.loss_list)
         vloss_list = np.array(trainer.vloss_list)
@@ -190,6 +191,53 @@ class Ai4MarsTrainer():
 
         print(f'Train mean loss: {loss_list.mean()}')
         print(f'Validation mean loss: {vloss_list.mean()}')
+
+        if SAVE_PATH:
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+
+            # Save loss on train and validation as np array for future valuations
+            np.save(SAVE_PATH + 'loss_' + '{}.npy'.format(timestamp, model), loss_list)
+            np.save(SAVE_PATH + 'vloss_' + '{}.npy'.format(timestamp, model), vloss_list)
+
+            # Save the plot to a file
+            plt.savefig(SAVE_PATH + 'loss_plot_' + '{}.png'.format(timestamp, model))
+
+    # Plot histogram of model parameters before and after taraining
+    def custom_hist(model, SAVE_PATH:str=None):
+
+        # Obtain the parameter values from the trained model
+        parameters = []
+        for param in model.parameters():
+            parameters.extend(param.cpu().flatten().detach().numpy())
+
+        parameters = np.array(parameters)
+
+        # Filter out non-positive values
+        parameters = parameters[parameters > 0]
+
+        # Apply logarithmic scaling to the data
+        log_data = np.log10(parameters)
+
+        # Set the range and number of bins manually
+        bins = np.linspace(min(log_data), max(log_data), 10)
+
+        # Plot the histogram with logarithmic scaling
+        plt.hist(log_data, bins=bins, log=True)
+
+        # Set plot title and labels
+        plt.xlabel('Logarithmic Scale')
+        plt.ylabel('Frequency')
+        plt.title('Histogram of Model Parameters')
+
+        # Show the plot
+        plt.show()
+
+        if SAVE_PATH:
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+
+            # Save the plot to a file
+            plt.savefig(SAVE_PATH + 'loss_plot_' + '{}.png'.format(timestamp, model))
+
 
 if __name__ == '__main__':
     pass

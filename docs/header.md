@@ -3,6 +3,7 @@
 **Cell One**
 ```
 # Custom Imports
+
 COLAB = 'google.colab' in sys.modules
 LOCAL = not COLAB
 
@@ -14,8 +15,11 @@ if COLAB:
     # Install pytorchmetrics
     !pip install torchmetrics
 
+    # Get the root directory of the Git project
+    root_dir = '/content/visiope'
+
     # Add custom modules to path
-    custom_modules_path = '/content/visiope/tools/'
+    custom_modules_path = root_dir + '/tools/'
     sys.path.insert(0, custom_modules_path)
 
 elif LOCAL:

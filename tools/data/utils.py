@@ -1,3 +1,6 @@
+""" This is a custom module to download, set up and process the ai4mars-dataset-merged-0.1
+to perform semantic segmentation over martian terrain images."""
+
 import os
 import cv2
 import math
@@ -387,4 +390,4 @@ class Ai4MarsDataLoader():
         return dataloaders
     
 if __name__ == '__main__':
-    ...
+    pass
