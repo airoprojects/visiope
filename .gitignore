@@ -169,6 +169,9 @@ cython_debug/
 Models/semantic-segmentation
 models/semantic-segmentation
 
+# Dataset
+dataset/ 
+
 # Dataloader directoriese
 dataloader/ai4mars-dataset-merged-0.1
 dataloader/data_loader.pkl

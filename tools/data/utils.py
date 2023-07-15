@@ -5,6 +5,7 @@ import torch
 import random
 import numpy as np
 from typing import Any
+from torch import Tensor
 import torchvision.transforms as transforms
 from torch.utils.data import Dataset, DataLoader
 
@@ -82,6 +83,8 @@ class Ai4MarsDownload():
               Saving path for X and y: {SAVE_PATH}"
               )
         
+        if NUM_IMAGES > 16000 : raise Exception(f"Trying to import too many images: {NUM_IMAGES}. Max number: 16000")
+
         # Allow to process all the images in the dataset
         if NUM_IMAGES == 'all': NUM_IMAGES = 16064
 
@@ -207,13 +210,13 @@ class Ai4MarsDownload():
         print("Converting inputs and labels into torch tensors ...")
         X = torch.stack(X, dim=0)
         y = torch.stack(y, dim=0)
-        print("Done")
 
         if SAVE_PATH:
             print(f"{DATASET} will be saved inside two different 'pt' files in: {SAVE_PATH}")
             torch.save(X, SAVE_PATH + 'X.pt')
             torch.save(y, SAVE_PATH + 'y.pt')
 
+        print("Done\n")
         return X, y
 
 # Random Split and Data Augmentation
@@ -347,7 +350,7 @@ class Ai4MarsSplitter():
             print(f"The Ai4MarsDatasets will be saved here: {SAVE_PATH}")
             torch.save(datasets, SAVE_PATH + 'dataset.pt')
 
-        print("Done")
+        print("Done \n")
         return datasets
     
 class Ai4MarsDataLoader():
@@ -380,8 +383,7 @@ class Ai4MarsDataLoader():
             print(f"The Ai4MarsDataloaders will be saved here: {SAVE_PATH}")
             torch.save(dataloaders, SAVE_PATH + 'dataloaders' + '.pt')
 
-        print("Done")
-
+        print("Done \n")
         return dataloaders
     
 if __name__ == '__main__':

@@ -48,7 +48,7 @@ class Ai4MarsCrossEntropy(nn.Module):
 class Ai4MarsDiceLoss(nn.Module):
 
     def __init__(self) -> None:
-        super(DiceLoss, self).__init__()
+        super(Ai4MarsDiceLoss, self).__init__()
         self.eps: float = 1e-6
 
     def forward(
