@@ -1,7 +1,7 @@
 """ Trainer module for MER-Segmentation 2.0 """
 
-import torch
 import time
+import torch
 import numpy as np
 from datetime import datetime 
 import matplotlib.pyplot as plt
@@ -11,7 +11,7 @@ class Ai4MarsTrainer():
 
     # Initialization of training parameters in the class constructor
     def __init__(self, loss_fn, optimizer, train_loader, val_loader,
-                 transform=None, device='cpu'):
+                 transform=None, device='cpu', model_name:str='', dump:bool=True):
         self.loss_fn = loss_fn
         self.optimizer = optimizer
         self.train_loader = train_loader
@@ -22,6 +22,10 @@ class Ai4MarsTrainer():
         self.loss_list = []
         self.tloss_list = []
         self.vloss_list = []
+
+        self.token = str(datetime.now().strftime('%Y%m%d_%H%M%S')) + model_name
+        if dump: self.location = '/dump/'
+        else: self.location = '/data/'
 
     # This function implements training for just one epoch
     def train_one_epoch(self, model, epoch_index=0):
@@ -189,7 +193,7 @@ class Ai4MarsTrainer():
             # Track best performance, and save the model's state
             if last_vloss < best_vloss:
                 best_vloss = last_vloss
-                SAVE_PATH = SAVE_PATH + '/dump/model_state/' 
+                SAVE_PATH = SAVE_PATH + self.location + self.token + '/model_state/' 
 
                 import os
                 if not os.path.exists(SAVE_PATH) : 
@@ -198,7 +202,7 @@ class Ai4MarsTrainer():
                 torch.save(model.state_dict(), SAVE_PATH + 'model_{}_{}'.format(timestamp, epoch_number))
 
     # Plot loss function on train set and validation set after training
-    def plot_loss(self, model=None, SAVE_PATH:str=None):
+    def plot_loss(self, model:str=None, SAVE_PATH:str=None):
 
         loss_list = np.array(self.loss_list)
         vloss_list = np.array(self.vloss_list)
@@ -219,7 +223,7 @@ class Ai4MarsTrainer():
 
             import os 
 
-            SAVE_PATH = SAVE_PATH + '/dump/loss/'
+            SAVE_PATH = SAVE_PATH + self.location + self.token + '/loss/' 
 
             if not os.path.exists(SAVE_PATH) : 
                 os.makedirs(SAVE_PATH)
@@ -229,14 +233,14 @@ class Ai4MarsTrainer():
             print(f"Data will be saved in {SAVE_PATH}")
 
             # Save loss on train and validation as np array for future valuations
-            np.save(SAVE_PATH + 'loss_' + '{}.npy'.format(timestamp, model.backbone), loss_list)
-            np.save(SAVE_PATH + 'vloss_' + '{}.npy'.format(timestamp, model.backbone), vloss_list)
+            np.save(SAVE_PATH + 'loss_' + '{}.npy'.format(timestamp), loss_list)
+            np.save(SAVE_PATH + 'vloss_' + '{}.npy'.format(timestamp), vloss_list)
 
             if self.tloss_list:
-                np.save(SAVE_PATH + 'tloss_' + '{}.npy'.format(timestamp, model.backbone), tloss_list)
+                np.save(SAVE_PATH + 'tloss_' + '{}.npy'.format(timestamp), tloss_list)
 
             # Save the plot to a file
-            plt.savefig(SAVE_PATH + 'loss_plot_' + '{}.png'.format(timestamp, model.backbone))
+            plt.savefig(SAVE_PATH + 'loss_plot_' + '{}.png'.format(timestamp))
 
         plt.show()
 
@@ -274,7 +278,7 @@ class Ai4MarsTrainer():
 
             import os 
 
-            SAVE_PATH = SAVE_PATH + '/dump/hist/'
+            SAVE_PATH = SAVE_PATH + self.location + self.token + '/hist/' 
 
             if not os.path.exists(SAVE_PATH) : 
                 os.makedirs(SAVE_PATH)
