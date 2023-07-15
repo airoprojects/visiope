@@ -21,6 +21,7 @@ class Ai4MarsTrainer():
         self.transform = transform
         self.loss_list = []
         self.tloss_list = []
+        self.vloss_list = []
 
     # This function implements training for just one epoch
     def train_one_epoch(self, model, epoch_index=0):
@@ -88,25 +89,27 @@ class Ai4MarsTrainer():
         last_loss =  (running_loss) / (batch_index+1)
 
         # Print report at the end of the last batch
-        print(f'Epoch {epoch_index+1}')
-        print(f'LOSS ON TRAIN: {last_loss}')
+        # and append loss to loss list
+        print(f'EPOCH {epoch_index+1}')
+        print(f'Train loss: {last_loss}')
+        self.loss_list.append(last_loss)
         
         if self.transform:
             last_tloss = running_tloss / (t_index+1)
-            print(f'LOSS ON TRANSFORMED-TRAIN: {last_tloss}')
+            print(f'Transformed train loss: {last_tloss}')
+            self.tloss_list.append(last_tloss)
 
-        else:
-            last_tloss = None
-
-        return last_loss, last_tloss
+        return last_loss
 
     # This function implements training for multiple epochs
     def train_multiple_epoch(self, model, EPOCHS=100):
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        epoch_number = 0 # just a counter
+        epoch_number = 0 # just an to reference save state epoch
+        last_vloss = 0.
         best_vloss = 1_000_000.
         self.loss_list = []
         self.tloss_list = []
+        self.vloss_list = []
 
         for epoch in range(EPOCHS):
 
@@ -118,7 +121,7 @@ class Ai4MarsTrainer():
 
             avg_loss = self.train_one_epoch(model, epoch)
 
-            # Endo monitoring time
+            # End of monitoring time
             end = time.time()
 
             # We don't need gradients on to do reporting
@@ -157,37 +160,35 @@ class Ai4MarsTrainer():
                 torch.cuda.empty_cache()
 
             # Compute the average loss over all batches
-            avg_vloss = running_vloss / (vbatch_index + 1)
+            last_vloss = running_vloss / (vbatch_index + 1)
 
             print("Time needed for training: " + str(end-start)+ " seconds")
 
             # Print report at the end of the epoch
-            print(f'LOSS ON VALIDATION: {avg_vloss}')
-
-            # Save loss in a list to then perform metrics evaluation
-            self.loss_list.append((avg_loss[0], end-start))
-            
-            # If online data augmentation has been performed:
-            if avg_loss[1]:
-                self.tloss_list.append((avg_loss[1], end-start))
+            # and append loss to loss list
+            print(f'Validation loss: {last_vloss} \n')
+            self.vloss_list.append(last_vloss)
 
             # Track best performance, and save the model's state
-            if avg_vloss < best_vloss:
-                best_vloss = avg_vloss
+            if last_vloss < best_vloss:
+                best_vloss = last_vloss
                 model_path = self.save_state + 'model_{}_{}'.format(timestamp, epoch_number)
                 torch.save(model.state_dict(), model_path)
 
+            print('\n')
 
     def custom_plot(trainer):
 
-        trainer_list = np.array(trainer.loss_list)
-        plt.plot(trainer_list )
+        trvloss_list = np.array(list(zip(trainer.loss_list, trainer.vloss_list)))
+
+        plt.plot(trvloss_list)
         plt.title('Training Performances')
         plt.xlabel('Epochs')
         plt.ylabel('Losses')
         plt.show()
 
-        print(trainer_list.mean())
+        print(f'Train mean loss: {trainer.loss_list.mean()}')
+        print(f'Validation mean loss: {trainer.vloss_list.mean()}')
 
 if __name__ == '__main__':
     pass
