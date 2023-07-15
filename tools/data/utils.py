@@ -8,7 +8,7 @@ from typing import Any
 import torchvision.transforms as transforms
 from torch.utils.data import Dataset, DataLoader
 
-# This class rappresents the dataset
+# Custom dataset for semantic segmentetion on Mars terrain images
 class Ai4MarsDataset(Dataset):
 
     def __init__(self, X, y, transform=None):
@@ -59,7 +59,7 @@ class Ai4MarsDataset(Dataset):
         self.X.requires_grad = True
 
 
-# This class import the dataset as a two lists of nparray: X = images, y = labels 
+# Download the dataset in a pair of torch tensors (X, y) 
 class Ai4MarsDownload():
 
     def __init__(self) -> None:
@@ -74,7 +74,7 @@ class Ai4MarsDownload():
         DATASET = 'ai4mars-dataset-merged-0.1'
 
         # Downloading Phase
-        print(f"This are the import parameters: \n \
+        print(f"This are the Class parameters: \n \
               Dataset: {DATASET} \n \
               Path to the dataset: {PATH} \n \
               Colab Environment: {COLAB} \n \
@@ -95,7 +95,15 @@ class Ai4MarsDownload():
                 pass
 
             else:
-                raise FileNotFoundError(DATASET)
+                print(f'{DATASET} not found, prepare to download it here: {PATH}')
+                import gdown
+
+                # get url of zipped dataset
+                url = 'https://drive.google.com/uc?id=1eW9Ah9DDEY02CTHCrRYLGPmiGZvCTKK4'
+
+                # set up zip download location and start download
+                output = PATH + 'ai4mars-dataset-merged-0.1.zip'
+                gdown.download(url, output, quiet=False)
 
         elif COLAB:
 
@@ -208,13 +216,13 @@ class Ai4MarsDownload():
 
         return X, y
 
-# This class perform Random Split and Data Augmentation
+# Random Split and Data Augmentation
 class Ai4MarsSplitter():
 
     def __init__(self) -> None:
         pass
 
-    def __call__(self, X, y, percentages:list=None, transform=None, SAVE_PATH:str=None):
+    def __call__(self, X, y, percentages:list=None, transform=None, SAVE_PATH:str=None, SIZE:int=None):
 
         import sys
         COLAB = 'google.colab' in sys.modules
@@ -230,9 +238,12 @@ class Ai4MarsSplitter():
         
         if COLAB:
             answ = str(input("Do you want to perform a lighter processing for the data? ")).lower()
+
             if answ in ['yes', 'y', 'si', 's']:
+
                 from torch.utils.data import random_split
                 dataset = Ai4MarsDataset(X, y)
+
                 return random_split(dataset, percentages)
 
         datasets = []
@@ -326,18 +337,20 @@ class Ai4MarsSplitter():
             else:
                 datasets.append(Ai4MarsDataset(subsets_X[i], subsets_y[i]))
 
+        if SIZE:
+            print(f"Resizing the {DATASET} images at size: {SIZE} ...")
+
+            for dataset in datasets:
+                dataset.resize(SIZE)
+
         if SAVE_PATH:
             print(f"The Ai4MarsDatasets will be saved here: {SAVE_PATH}")
-
-            names = ['train', 'test', 'val']
-
-            for i, data in enumerate(datasets):
-                torch.save(data, SAVE_PATH + names[i%3] + '_' + str(i // 3) + '.pt')
+            torch.save(datasets, SAVE_PATH + 'dataset.pt')
 
         print("Done")
         return datasets
     
-class Ai4MarsDataloader():
+class Ai4MarsDataLoader():
 
     def __init__(self) -> None:
         pass
