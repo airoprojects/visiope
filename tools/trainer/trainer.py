@@ -187,9 +187,16 @@ class Ai4MarsTrainer():
         plt.xlabel('Epochs')
         plt.ylabel('Losses')
         plt.legend()
-        plt.show()
 
         if SAVE_PATH:
+
+            import os 
+
+            SAVE_PATH = SAVE_PATH + 'dump/'
+
+            if not os.path.exists(SAVE_PATH) : 
+                os.makedirs(SAVE_PATH)
+
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 
             # Save loss on train and validation as np array for future valuations
@@ -198,6 +205,8 @@ class Ai4MarsTrainer():
 
             # Save the plot to a file
             plt.savefig(SAVE_PATH + 'loss_plot_' + '{}.png'.format(timestamp, model.backbone))
+
+        plt.show()
 
         print(f'Train mean loss: {loss_list.mean()}')
         print(f'Validation mean loss: {vloss_list.mean()}')
@@ -229,14 +238,22 @@ class Ai4MarsTrainer():
         plt.ylabel('Frequency')
         plt.title('Histogram of Model Parameters')
 
-        # Show the plot
-        plt.show()
-
         if SAVE_PATH:
+
+            import os 
+
+            SAVE_PATH = SAVE_PATH + 'dump/'
+
+            if not os.path.exists(SAVE_PATH) : 
+                os.makedirs(SAVE_PATH)
+
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 
             # Save the plot to a file
             plt.savefig(SAVE_PATH + 'loss_plot_' + '{}.png'.format(timestamp, model.backbone))
+
+        # Show the plot
+        plt.show()
 
 
 if __name__ == '__main__':

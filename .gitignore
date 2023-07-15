@@ -184,5 +184,8 @@ tests/
 dataloader/tests/
 trainer/tests
 
+# experiments
+experiments/dump/
+
 # old versions
 OLD
