@@ -9,7 +9,7 @@ from torch import Tensor
 import torch.nn.functional as F
 from torch.autograd import Variable
 
-class CrossEntropy(nn.Module):
+class Ai4MarsCrossEntropy(nn.Module):
     def __init__(self, 
                  ignore_label: int = 4, 
                  weight: Tensor = None) -> None:
@@ -45,7 +45,7 @@ class CrossEntropy(nn.Module):
         return criterion(rev_inputs, target)
 
 
-class DiceLoss(nn.Module):
+class Ai4MarsDiceLoss(nn.Module):
 
     def __init__(self) -> None:
         super(DiceLoss, self).__init__()
