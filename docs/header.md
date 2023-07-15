@@ -52,7 +52,7 @@ from tester.tester import Ai4MarsTester
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 ```
 
-**Cell Three**
+**Cell Two**
 ```
 # Dataloader
 
