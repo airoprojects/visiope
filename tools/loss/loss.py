@@ -28,14 +28,13 @@ class Ai4MarsCrossEntropy(nn.Module):
         if not len(inputs.shape) == 4:
             raise ValueError(f"Invalid input shape, we expect B x H x W x C. Got: {inputs.shape}")
         
-        # if not input.shape[1:2] == target.shape[1:2]:
+        # if not inputs.shape[1:2] == target.shape[1:2]:
         #     raise ValueError("input and target shapes must be the same. Got: {}"
-        #                      .format(input.shape, target.shape))
+        #                      .format(inputs.shape, targets.shape))
 
-        if not input.device == target.device:
-            raise ValueError(
-                "input and target must be in the same device. Got: {}" .format(
-                    input.device, target.device))
+        if not inputs.device == target.device:
+            raise ValueError(f"input and target must be in the same device. Got: {(
+                    inputs.device, target.device)}")
         
         # Cross entropy needs inputs in original shape B x C x H x W but we have B x H x W x C
         rev_inputs = inputs.permute(0, 1, 3, 2).permute(0, 2, 1, 3)
@@ -57,21 +56,19 @@ class Ai4MarsDiceLoss(nn.Module):
             target: torch.Tensor) -> torch.Tensor:
 
         # Check for inputs errors
-        if not torch.is_tensor(input):
+        if not torch.is_tensor(inputs):
             raise TypeError(f"Input type is not a torch.Tensor. Got {type(inputs)}")
         
         if not len(inputs.shape) == 4:
             raise ValueError(f"Invalid input shape, we expect B x H x W x C. Got: {inputs.shape}")
         
-        # if not input.shape[1:2] == target.shape[1:2]:
+        # if not inputs.shape[1:2] == target.shape[1:2]:
         #     raise ValueError("input and target shapes must be the same. Got: {}"
-        #                      .format(input.shape, target.shape))
+        #                      .format(inputs.shape, target.shape))
 
-        if not input.device == target.device:
-            raise ValueError(
-                "input and target must be in the same device. Got: {}" .format(
-                    input.device, target.device))
-
+        if not inputs.device == target.device:
+            raise ValueError(f"input and target must be in the same device. Got: {(
+                    inputs.device, target.device)}")
 
         # Assume input shape as B x H x W x C
         num_classes = inputs.shape[-1]
