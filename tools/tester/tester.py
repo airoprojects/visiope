@@ -67,7 +67,7 @@ class Ai4MarsTester():
         # Index metrics
         value = self.metric(total_outputs.reshape(-1), total_labels.reshape(-1))
 
-        print(f"Metrics {self.metric}: {value}")
+        print(f"Metrics {self.metric}: {value.item()}")
 
         return last_loss, value
 

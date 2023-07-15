@@ -175,20 +175,20 @@ class Ai4MarsTrainer():
                 model_path = self.save_state + 'model_{}_{}'.format(timestamp, epoch_number)
                 torch.save(model.state_dict(), model_path)
 
-            print('\n')
-
     def custom_plot(trainer):
 
-        trvloss_list = np.array(list(zip(trainer.loss_list, trainer.vloss_list)))
+        loss_list = np.array(trainer.loss_list)
+        vloss_list = np.array(trainer.vloss_list)
+        combo = np.dstack((loss_list, vloss_list))
 
-        plt.plot(trvloss_list)
+        plt.plot(combo)
         plt.title('Training Performances')
         plt.xlabel('Epochs')
         plt.ylabel('Losses')
         plt.show()
 
-        print(f'Train mean loss: {trainer.loss_list.mean()}')
-        print(f'Validation mean loss: {trainer.vloss_list.mean()}')
+        print(f'Train mean loss: {loss_list.mean()}')
+        print(f'Validation mean loss: {vloss_list.mean()}')
 
 if __name__ == '__main__':
     pass
