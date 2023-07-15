@@ -196,11 +196,11 @@ class Ai4MarsTrainer():
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 
             # Save loss on train and validation as np array for future valuations
-            np.save(SAVE_PATH + 'loss_' + '{}.npy'.format(timestamp, model), loss_list)
-            np.save(SAVE_PATH + 'vloss_' + '{}.npy'.format(timestamp, model), vloss_list)
+            np.save(SAVE_PATH + 'loss_' + '{}.npy'.format(timestamp, model.backbone), loss_list)
+            np.save(SAVE_PATH + 'vloss_' + '{}.npy'.format(timestamp, model.backbone), vloss_list)
 
             # Save the plot to a file
-            plt.savefig(SAVE_PATH + 'loss_plot_' + '{}.png'.format(timestamp, model))
+            plt.savefig(SAVE_PATH + 'loss_plot_' + '{}.png'.format(timestamp, model.backbone))
 
     # Plot histogram of model parameters before and after taraining
     def custom_hist(model, SAVE_PATH:str=None):
@@ -236,7 +236,7 @@ class Ai4MarsTrainer():
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 
             # Save the plot to a file
-            plt.savefig(SAVE_PATH + 'loss_plot_' + '{}.png'.format(timestamp, model))
+            plt.savefig(SAVE_PATH + 'loss_plot_' + '{}.png'.format(timestamp, model.backbone))
 
 
 if __name__ == '__main__':
