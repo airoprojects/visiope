@@ -176,10 +176,10 @@ class Ai4MarsTrainer():
                 torch.save(model.state_dict(), model_path)
 
     # Plot loss function on train set and validation set after training
-    def custom_plot(trainer, model=None, SAVE_PATH:str=None):
+    def custom_plot(self, model=None, SAVE_PATH:str=None):
 
-        loss_list = np.array(trainer.loss_list)
-        vloss_list = np.array(trainer.vloss_list)
+        loss_list = np.array(self.loss_list)
+        vloss_list = np.array(self.vloss_list)
 
         plt.plot(loss_list, label='Training Loss')
         plt.plot(vloss_list, label='Validation Loss')
@@ -188,9 +188,6 @@ class Ai4MarsTrainer():
         plt.ylabel('Losses')
         plt.legend()
         plt.show()
-
-        print(f'Train mean loss: {loss_list.mean()}')
-        print(f'Validation mean loss: {vloss_list.mean()}')
 
         if SAVE_PATH:
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -202,8 +199,11 @@ class Ai4MarsTrainer():
             # Save the plot to a file
             plt.savefig(SAVE_PATH + 'loss_plot_' + '{}.png'.format(timestamp, model.backbone))
 
+        print(f'Train mean loss: {loss_list.mean()}')
+        print(f'Validation mean loss: {vloss_list.mean()}')
+
     # Plot histogram of model parameters before and after taraining
-    def custom_hist(model, SAVE_PATH:str=None):
+    def custom_hist(self, model, SAVE_PATH:str=None):
 
         # Obtain the parameter values from the trained model
         parameters = []
