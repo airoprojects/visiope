@@ -36,9 +36,6 @@ elif LOCAL:
     custom_modules_path = root_dir  + '/tools/'
     sys.path.insert(0, custom_modules_path)
 
-else:
-    raise Exception("Unknown Environment")
-
 
 # Import Loader
 from data.utils import Ai4MarsDownload, Ai4MarsSplitter, Ai4MarsDataLoader
@@ -62,20 +59,27 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Set this to True if you wnat to load directly the dataloader 
 # this can be done only on colab and it is useful to avoid runtime crash
-LOAD = True
+LOAD = False
 
-if LOAD and not LOCAL:
+if LOAD:
 
-    if not(os.path.exists('/content/dataset/')):
+    if COLAB:
 
-        import gdown
+        if not(os.path.exists('/content/dataset/')):
 
-        # get url of torch dataset 
-        url = 'https://drive.google.com/drive/folders/104YvO3LcU76euuVe-_62eS_Rld-tOZeh?usp=drive_link'
+            import gdown
 
-        !gdown --folder {url} -O /content/
+            # get url of torch dataset (temporarerly my drive)
+            drive = 'https://drive.google.com/uc?id='
+            url = 'https://drive.google.com/drive/folders/104YvO3LcU76euuVe-_62eS_Rld-tOZeh?usp=drive_link'
 
-    dataset = torch.load("/content/dataset/dataset.pt")
+            !gdown --folder {url} -O /content/
+
+            load_path = '/content/dataset/dataset.pt'
+
+    elif LOCAL: load_path = root_dir + '/datasetup/dataset/dataset.pt'
+
+    dataset = torch.load(load_path)
     train_set = dataset[0]
     test_set = dataset[1]
     val_set = dataset[2]
@@ -85,23 +89,31 @@ if LOAD and not LOCAL:
     train_loader, test_loader, val_loader = loader(
         [train_set, test_set, val_set], [32, 16, 16])
 
-        
-elif LOCAL or not LOAD:
+
+else:
 
     # Insert here your local path to the dataset (temporary on airodrive)
     raise Exception('Remove this line and inset the path to the dataset below')
     data_path = ...
 
-    # Local path to save the dataset
-    save_path = root_dir + '/dataset/'
+    save_path = None
+    # Uncomment the following line to the dataset on a local path
+    #save_path = root_dir + '/datasetup/dataset/'
 
     # Import data as Ai4MarsDataset
     importer = Ai4MarsDownload()
     X, y = importer(PATH=data_path, NUM_IMAGES=500)
 
+    transform = None
+    # Uncomment the following lines to apply transformations to the dataset
+    '''
+    transform = transforms.RandomChoice([
+     transforms.RandomRotation(90)])
+    '''
+
     # Split the dataset
     splitter = Ai4MarsSplitter()
-    train_set, test_set, val_set = splitter(X, y, [0.7, 0.2, 0.1], SAVE_PATH=save_path, SIZE=128)
+    train_set, test_set, val_set = splitter(X, y, [0.7, 0.2, 0.1], transform=transform, SAVE_PATH=save_path, SIZE=128)
 
     # Build Ai4MarsDataloader
     loader = Ai4MarsDataLoader()
