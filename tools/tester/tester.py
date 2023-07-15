@@ -51,7 +51,7 @@ class Ai4MarsTester():
         # Compute average loss over all batches
         last_loss = (running_loss) / (batch_index + 1 )
 
-        print(f'Test loss: {last_loss}')
+        print(f"Test loss: {last_loss}\n")
 
         # Preprocessing for metrics computation
         if len(self.test_loader.dataset) % self.test_loader.batch_size != 0:
@@ -68,9 +68,3 @@ class Ai4MarsTester():
         value = self.metric(total_outputs.reshape(-1), total_labels.reshape(-1))
 
         print(f"Metrics {self.metric}: {value.item()}")
-
-        return last_loss, value
-
-
-        
-

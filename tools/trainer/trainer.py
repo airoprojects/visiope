@@ -179,12 +179,13 @@ class Ai4MarsTrainer():
 
         loss_list = np.array(trainer.loss_list)
         vloss_list = np.array(trainer.vloss_list)
-        combo = np.dstack((loss_list, vloss_list))
 
-        plt.plot(combo)
+        plt.plot(loss_list, label='Training Loss')
+        plt.plot(vloss_list, label='Validation Loss')
         plt.title('Training Performances')
         plt.xlabel('Epochs')
         plt.ylabel('Losses')
+        plt.legend()
         plt.show()
 
         print(f'Train mean loss: {loss_list.mean()}')
