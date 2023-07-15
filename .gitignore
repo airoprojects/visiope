@@ -168,9 +168,11 @@ cython_debug/
 # SegFormer directories
 Models/semantic-segmentation
 models/semantic-segmentation
+experiments/semantic-segmentation/
 semantic-segmentation/
 
 # Dataset
+datasetup/dataset/
 dataset/ 
 
 # Dataloader directoriese

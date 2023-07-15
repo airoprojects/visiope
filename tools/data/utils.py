@@ -226,6 +226,7 @@ class Ai4MarsDownload():
 class Ai4MarsSplitter():
 
     def __init__(self) -> None:
+        self.augmentation_size = 100  # hyperparamto decide the size of the augmentation
         pass
 
     def __call__(self, X, y, percentages:list=None, transform=None, SAVE_PATH:str=None, SIZE:int=None):
@@ -320,6 +321,7 @@ class Ai4MarsSplitter():
         if transform:
 
             for tensor_X, tensor_y in zip(subsets_X[0], subsets_y[0]):
+
                 # Save the state of the tensors
                 state = torch.get_rng_state()
                 augmentation_X.append(transform(tensor_X))
@@ -329,15 +331,17 @@ class Ai4MarsSplitter():
                 augmentation_y.append(transform(tensor_y))
 
             augmentation_X = torch.stack(augmentation_X, dim=0)
-            augmented_set_X = torch.cat((subsets_X[0], augmentation_X[:100]),0)
+            augmented_set_X = torch.cat((subsets_X[0], augmentation_X[:self.augmentation_size]),0)
 
             augmentation_y = torch.stack(augmentation_y, dim=0)
-            augmented_set_y = torch.cat((subsets_y[0], augmentation_y[:100]),0)
+            augmented_set_y = torch.cat((subsets_y[0], augmentation_y[:self.augmentation_size]),0)
 
         # Datasets
         for i in range(len(subsets_X)):
 
-            if transform and i == 1:
+            # Add images only on train set: 
+            # this assume the split to be done with train at position 0
+            if transform and i == 0:
                 datasets.append(Ai4MarsDataset(augmented_set_X, augmented_set_y))
             
             else:

@@ -11,14 +11,14 @@ class Ai4MarsTrainer():
 
     # Initialization of training parameters in the class constructor
     def __init__(self, loss_fn, optimizer, train_loader, val_loader,
-                 transform=None, device='cpu', save_state='./'):
+                 transform=None, device='cpu'):
         self.loss_fn = loss_fn
         self.optimizer = optimizer
         self.train_loader = train_loader
         self.val_loader = val_loader
         self.device = device
-        self.save_state = save_state
         self.transform = transform
+
         self.loss_list = []
         self.tloss_list = []
         self.vloss_list = []
@@ -47,12 +47,12 @@ class Ai4MarsTrainer():
             # Make predictions for this batch
             outputs = model(inputs)
 
+            # New shape: B x W x H x C
+            outputs = outputs.permute(0,2,1,3).permute(0,1,3,2)
+
             # Adjust label to be 2D tensors of batch size
             labels = labels.squeeze()
             labels = labels.long()
-
-            # New shape: B x W x H x C
-            outputs = outputs.permute(0,2,1,3).permute(0,1,3,2)
 
             # Compute the loss and its gradients
             loss = self.loss_fn(outputs, labels)
@@ -67,15 +67,29 @@ class Ai4MarsTrainer():
 
             # if transformation exists apply them to the batch
             if self.transform:
+
+                # Transform inputs and labes with same transformation
+                state = torch.get_rng_state()   # save tensor state
                 tinputs = self.transform(inputs)
+                torch.set_rng_state(state)      # load tensor state
                 tlabels = self.transform(labels)
-                tinputs = tinputs.to(self.device)
+
                 self.optimizer.zero_grad()
+
+                tinputs = tinputs.to(self.device)
+                tlabels = tlabels.to(self.device)
+
                 toutputs = model(tinputs)
                 toutputs = toutputs.permute(0,2,1,3).permute(0,1,3,2)
+
+                labels = labels.squeeze()
+                labels = labels.long()
+
                 tloss = self.loss_fn(toutputs, tlabels)
                 tloss.backward()
+                self.optimizer.step()
                 running_tloss = tloss.item()
+
                 t_index += 1
                 tinputs.detach()
                 tlabels.detach()
@@ -105,7 +119,7 @@ class Ai4MarsTrainer():
         return last_loss
 
     # This function implements training for multiple epochs
-    def train_multiple_epoch(self, model, EPOCHS=100):
+    def train_multiple_epoch(self, model, EPOCHS:int=100, SAVE_PATH:str='./'):
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         epoch_number = 0 # just an to reference save state epoch
         last_vloss = 0.
@@ -175,17 +189,27 @@ class Ai4MarsTrainer():
             # Track best performance, and save the model's state
             if last_vloss < best_vloss:
                 best_vloss = last_vloss
-                model_path = self.save_state + 'model_{}_{}'.format(timestamp, epoch_number)
-                torch.save(model.state_dict(), model_path)
+                SAVE_PATH = SAVE_PATH + '/dump/model_state/' 
+
+                import os
+                if not os.path.exists(SAVE_PATH) : 
+                    os.makedirs(SAVE_PATH)
+
+                torch.save(model.state_dict(), SAVE_PATH + 'model_{}_{}'.format(timestamp, epoch_number))
 
     # Plot loss function on train set and validation set after training
-    def custom_plot(self, model=None, SAVE_PATH:str=None):
+    def plot_loss(self, model=None, SAVE_PATH:str=None):
 
         loss_list = np.array(self.loss_list)
         vloss_list = np.array(self.vloss_list)
 
         plt.plot(loss_list, label='Training Loss')
         plt.plot(vloss_list, label='Validation Loss')
+
+        if self.tloss_list:
+            tloss_list = np.array(self.tloss_list)
+            plt.plot(tloss_list, label='Transformation Loss')
+
         plt.title('Training Performances')
         plt.xlabel('Epochs')
         plt.ylabel('Losses')
@@ -195,7 +219,7 @@ class Ai4MarsTrainer():
 
             import os 
 
-            SAVE_PATH = SAVE_PATH + 'dump/loss/'
+            SAVE_PATH = SAVE_PATH + '/dump/loss/'
 
             if not os.path.exists(SAVE_PATH) : 
                 os.makedirs(SAVE_PATH)
@@ -208,6 +232,9 @@ class Ai4MarsTrainer():
             np.save(SAVE_PATH + 'loss_' + '{}.npy'.format(timestamp, model.backbone), loss_list)
             np.save(SAVE_PATH + 'vloss_' + '{}.npy'.format(timestamp, model.backbone), vloss_list)
 
+            if self.tloss_list:
+                np.save(SAVE_PATH + 'tloss_' + '{}.npy'.format(timestamp, model.backbone), tloss_list)
+
             # Save the plot to a file
             plt.savefig(SAVE_PATH + 'loss_plot_' + '{}.png'.format(timestamp, model.backbone))
 
@@ -217,7 +244,7 @@ class Ai4MarsTrainer():
         print(f'Validation mean loss: {vloss_list.mean()}')
 
     # Plot histogram of model parameters before and after taraining
-    def custom_hist(self, model, SAVE_PATH:str=None, label:str=''):
+    def param_hist(self, model, SAVE_PATH:str=None, label:str=''):
 
         # Obtain the parameter values from the trained model
         parameters = []
@@ -247,7 +274,7 @@ class Ai4MarsTrainer():
 
             import os 
 
-            SAVE_PATH = SAVE_PATH + 'dump/hist/'
+            SAVE_PATH = SAVE_PATH + '/dump/hist/'
 
             if not os.path.exists(SAVE_PATH) : 
                 os.makedirs(SAVE_PATH)
