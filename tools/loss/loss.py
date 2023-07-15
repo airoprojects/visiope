@@ -22,7 +22,7 @@ class Ai4MarsCrossEntropy(nn.Module):
                 target: Tensor) -> Tensor:
         
         # Check for inputs errors
-        if not torch.is_tensor(input):
+        if not torch.is_tensor(inputs):
             raise TypeError(f"Input type is not a torch.Tensor. Got {type(inputs)}")
         
         if not len(inputs.shape) == 4:
