@@ -2,20 +2,6 @@
 
 **Cell One**
 ```
-# General imports
-
-import os
-import sys
-import torch
-import numpy as np
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.utils.data import DataLoader
-```
-
-**Cell Two**
-
-```
 # Custom Imports
 COLAB = 'google.colab' in sys.modules
 LOCAL = not COLAB
@@ -67,7 +53,6 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 ```
 
 **Cell Three**
-
 ```
 # Dataloader
 
