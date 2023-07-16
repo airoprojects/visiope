@@ -69,7 +69,7 @@ class Ai4MarsDownload():
     def __init__(self) -> None:
         pass
 
-    def __call__(self, PATH:str='./', NUM_IMAGES:int=200, SAVE_PATH:str=None): 
+    def __call__(self, PATH:str='./', NUM_IMAGES:int=200, SAVE_PATH:str=None, SIZE:int=128): 
 
         import sys
         COLAB = 'google.colab' in sys.modules
@@ -192,12 +192,18 @@ class Ai4MarsDownload():
                 label_path = os.path.join(label_train, label)
                 lab_arr = cv2.imread(label_path,0) # 0 mean read as greyscale image
 
+
                 # Build torch tensors
                 x_t = torch.from_numpy(img_arr) / 255 # normalization
-                X.append(x_t)
-
                 y_t = torch.from_numpy(lab_arr[:, :, np.newaxis])
                 y_t[y_t == 255] = 4 # reassigment for background
+
+                if SIZE:
+                    transform = transforms.Resize(SIZE,antialias=True)
+                    x_t = transform(x_t)
+                    y_t = transform(y_t)
+                    
+                X.append(x_t)
                 y.append(y_t)
 
                 # free up some memory

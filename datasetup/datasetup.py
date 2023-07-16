@@ -37,17 +37,17 @@ save_path = root_dir + '/datasetup/dataset/'
 
 # Import data as Ai4MarsDataset
 importer = Ai4MarsDownload()
-X, y = importer(PATH=data_path, NUM_IMAGES=500)
+X, y = importer(PATH=data_path, NUM_IMAGES=1, SAVE_PATH=save_path)
 
 # Uncomment the following lines to apply transformations to the dataset
-transform = transforms.RandomChoice([
-    transforms.RandomRotation(90)])
+#transform = transforms.RandomChoice([
+  #  transforms.RandomRotation(90)])
 
 # Split the dataset
-splitter = Ai4MarsSplitter()
-train_set, test_set, val_set = splitter(X, y, [0.7, 0.2, 0.1], transform=transform,
-                                        SAVE_PATH=save_path, SIZE=128)
+#splitter = Ai4MarsSplitter()
+#train_set, test_set, val_set = splitter(X, y, [0.7, 0.2, 0.1], transform=transform,
+ #                                       SAVE_PATH=save_path, SIZE=128)
 
 # Build Ai4MarsDataloader
-loader = Ai4MarsDataLoader()
-train_loader, test_loader, val_loader = loader([train_set, test_set, val_set], [32, 16, 16], SIZE=128)
+#loader = Ai4MarsDataLoader()
+#train_loader, test_loader, val_loader = loader([train_set, test_set, val_set], [32, 16, 16], SIZE=128)
