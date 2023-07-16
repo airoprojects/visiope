@@ -78,7 +78,7 @@ class Ai4MarsDownload():
         DATASET = 'ai4mars-dataset-merged-0.1'
 
         # Downloading Phase
-        print(f"This are the Class parameters: \n \
+        print(f"Download parameters: \n \
               Dataset: {DATASET} \n \
               Path to the dataset: {PATH} \n \
               Colab Environment: {COLAB} \n \
@@ -227,6 +227,7 @@ class Ai4MarsSplitter():
 
     def __init__(self) -> None:
         self.augmentation_size = 100  # hyperparamto decide the size of the augmentation
+        self.info = {}
         pass
 
     def __call__(self, X, y, percentages:list=None, transform=None, SAVE_PATH:str=None, SIZE:int=None):
@@ -237,12 +238,25 @@ class Ai4MarsSplitter():
         
         DATASET = 'ai4mars-dataset-merged-0.1'
 
-        print(f"Begin processing: \n \
+        print(f"Splitting parameters: \n \
             Dataset: {DATASET} \n \
             Colab environment: {COLAB} \n \
             Split percentages: {percentages} \n \
-            Transformation: {transform}")
+            Transformation: {transform} \n \
+            Svaving path: {SAVE_PATH} \n \
+            New image size: {SIZE}")
         
+        # Saving data parameters
+        self.info['dataset'] = DATASET
+        self.info['percentages'] = str(percentages)
+        self.info['transform'] = transform
+
+        if SIZE:
+            self.info['size'] = str(SIZE)
+        
+        else:
+            self.info['size'] = str(X.shape[-2])
+
         if COLAB:
             answ = str(input("Do you want to perform a lighter processing for the data? ")).lower()
 
@@ -250,6 +264,7 @@ class Ai4MarsSplitter():
 
                 from torch.utils.data import random_split
                 dataset = Ai4MarsDataset(X, y)
+                if SIZE: dataset.resize(SIZE)
 
                 return random_split(dataset, percentages)
 
@@ -268,7 +283,7 @@ class Ai4MarsSplitter():
         assert math.ceil(sum(percentages)) == 1. , 'Percentages should sum to 1'
         assert len(X) == len(y), 'Len of Inputs and Labels must be the same'
 
-        print("Splitting in progress ...")
+        print("Extrapolation of random inices ...")
 
         dataset_len = len(X)
         subsets_lens = []
@@ -292,7 +307,7 @@ class Ai4MarsSplitter():
         random_indices = random.sample(range(dataset_len), dataset_len)
         start = 0
 
-        # Random extrction of indices for each subsets
+        # Random extraction of indices for each subsets
         for lens in subsets_lens:
             subsets_indices.append(random_indices[start:start+lens])
             start += lens
@@ -300,6 +315,8 @@ class Ai4MarsSplitter():
         subsets_X = [[] for i in range(len(subsets_indices))]
         subsets_y = [[] for i in range(len(subsets_indices))]
         i = 0
+
+        print("Splitting in progress ...")
 
         # Splitting of dataset into subsets
         for indices in subsets_indices:
@@ -309,26 +326,34 @@ class Ai4MarsSplitter():
                 subsets_y[i].append(y[index])
             i += 1
 
-        # Convertion to torch tensors
+        # Convertion to torch tensors - x C x H x W 
         for i in range(len(subsets_X)):                             
-            subsets_X[i] = torch.stack(subsets_X[i], dim=0).permute(0,3,2,1)
-            subsets_y[i] = torch.stack(subsets_y[i], dim=0).permute(0,3,2,1)
+            subsets_X[i] = torch.stack(subsets_X[i], dim=0).permute(0,1,3,2).permute(0,2,1,3)
+            subsets_y[i] = torch.stack(subsets_y[i], dim=0).permute(0,1,3,2).permute(0,2,1,3)
 
         augmentation_X = []
         augmentation_y = []
 
         # Data Augmentation
         if transform:
+            print("Data Augmentation is a memory consuming operation ...")
 
             for tensor_X, tensor_y in zip(subsets_X[0], subsets_y[0]):
 
                 # Save the state of the tensors
                 state = torch.get_rng_state()
-                augmentation_X.append(transform(tensor_X))
+                tensor_T_X  = transform(tensor_X)
+                augmentation_X.append(tensor_T_X)
 
                 # To then apply the same transformation
                 torch.set_rng_state(state)
-                augmentation_y.append(transform(tensor_y))
+                tensor_T_y  = transform(tensor_y)
+                augmentation_y.append(transform(tensor_T_y))
+
+                tensor_T_X.detach()
+                tensor_T_y.detach()
+                del tensor_T_X
+                del tensor_T_y
 
             augmentation_X = torch.stack(augmentation_X, dim=0)
             augmented_set_X = torch.cat((subsets_X[0], augmentation_X[:self.augmentation_size]),0)
@@ -349,13 +374,22 @@ class Ai4MarsSplitter():
 
         if SIZE:
             print(f"Resizing the {DATASET} images at size: {SIZE} ...")
+            print("Resizing is a memory consuming operation ...")
 
             for dataset in datasets:
                 dataset.resize(SIZE)
 
         if SAVE_PATH:
             print(f"The Ai4MarsDatasets will be saved here: {SAVE_PATH}")
+
+            import os 
+            if not os.path.exists(SAVE_PATH) : 
+                os.makedirs(SAVE_PATH)
             torch.save(datasets, SAVE_PATH + 'dataset.pt')
+            torch.save(self.info, SAVE_PATH + 'info.pt')
+
+        else:
+            torch.save(self.info, './info.pt')
 
         print("Done \n")
         return datasets
@@ -388,6 +422,10 @@ class Ai4MarsDataLoader():
 
         if SAVE_PATH:
             print(f"The Ai4MarsDataloaders will be saved here: {SAVE_PATH}")
+
+            import os 
+            if not os.path.exists(SAVE_PATH) : 
+                os.makedirs(SAVE_PATH)
             torch.save(dataloaders, SAVE_PATH + 'dataloaders' + '.pt')
 
         print("Done \n")

@@ -37,7 +37,7 @@ save_path = root_dir + '/datasetup/dataset/'
 
 # Import data as Ai4MarsDataset
 importer = Ai4MarsDownload()
-X, y = importer(PATH=data_path, NUM_IMAGES=300)
+X, y = importer(PATH=data_path, NUM_IMAGES=500)
 
 # Uncomment the following lines to apply transformations to the dataset
 transform = transforms.RandomChoice([
