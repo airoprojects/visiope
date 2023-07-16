@@ -11,7 +11,7 @@ class Ai4MarsTrainer():
 
     # Initialization of training parameters in the class constructor
     def __init__(self, loss_fn, optimizer, train_loader, val_loader,
-                 transform=None, device='cpu', model_name:str='', dump:bool=True):
+                 transform=None, device='cpu', info:dict={}, model_name:str='', dump:bool=True):
         self.loss_fn = loss_fn
         self.optimizer = optimizer
         self.train_loader = train_loader
@@ -23,7 +23,11 @@ class Ai4MarsTrainer():
         self.tloss_list = []
         self.vloss_list = []
 
-        self.token = str(datetime.now().strftime('%Y%m%d_%H%M%S')) + model_name
+        self.info = info
+        self.model_name = model_name
+        self.token = str(datetime.now().strftime('%Y%m%d-%H%M%S'))
+
+        if model_name: self.token =  self.token + '-' + model_name
         if dump: self.location = '/dump/'
         else: self.location = '/data/'
 
@@ -132,6 +136,25 @@ class Ai4MarsTrainer():
         self.tloss_list = []
         self.vloss_list = []
 
+        SAVE_PATH = SAVE_PATH + self.location + self.token + '/model_state/' 
+
+        import os
+        if not os.path.exists(SAVE_PATH) : 
+            os.makedirs(SAVE_PATH)
+
+        if self.info:
+
+            with open(SAVE_PATH + 'config', 'w') as config:
+                self.info = [
+                    "Dataset:" + self.info['dataset'],
+                    "Model name: " + str(self.model_name),
+                    "Image size: " + str(self.info['size']),
+                    "Splitting percentages: " + self.info['percentages'],
+                    "Prior augmentation: " + str(self.info['transform']),
+                    "Online augmentation: " + str(self.transform)
+                ]
+                config.writelines(["%s\n" % item  for item in self.info])
+
         for epoch in range(EPOCHS):
 
             # Make sure gradient tracking is on, and do a pass over the data
@@ -193,13 +216,9 @@ class Ai4MarsTrainer():
             # Track best performance, and save the model's state
             if last_vloss < best_vloss:
                 best_vloss = last_vloss
-                SAVE_PATH = SAVE_PATH + self.location + self.token + '/model_state/' 
-
-                import os
-                if not os.path.exists(SAVE_PATH) : 
-                    os.makedirs(SAVE_PATH)
 
                 torch.save(model.state_dict(), SAVE_PATH + 'model_{}_{}'.format(timestamp, epoch_number))
+            
 
     # Plot loss function on train set and validation set after training
     def plot_loss(self, model:str=None, SAVE_PATH:str=None):

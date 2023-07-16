@@ -117,5 +117,5 @@ else:
 
     # Build Ai4MarsDataloader
     loader = Ai4MarsDataLoader()
-    train_loader, test_loader, val_loader = loader([train_set, test_set, val_set], [32, 16, 16], SIZE=128, SAVE_PATH=save_path)
+    train_loader, test_loader, val_loader = loader([train_set, test_set, val_set], [32, 16, 16], SAVE_PATH=save_path)
 ```
