@@ -4,13 +4,14 @@ import os
 import sys
 import torch
 import numpy as np
-from git import Repo
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
 
 # Custom Imports
+
+from git import Repo
 
 # Initialize the Git repository object
 repo = Repo(".", search_parent_directories=True)
@@ -24,9 +25,9 @@ sys.path.insert(0, custom_modules_path)
 
 
 # Import Loader
-from data.utils import Ai4MarsDownload, Ai4MarsSplitter, Ai4MarsDataLoader
+from data.utils import Ai4MarsDownload, Ai4MarsImporter
 
-# Dataloader
+# Buld up a dataset with n torch tensor from ai4marsdataset
 
 # Insert here your local path to the dataset (temporary on airodrive)
 #raise Exception('Remove this line and inset the path to the dataset below')
@@ -36,18 +37,16 @@ data_path = '/home/leeoos/Desktop/'
 save_path = root_dir + '/datasetup/dataset/'
 
 # Import data as Ai4MarsDataset
-importer = Ai4MarsDownload()
-X, y = importer(PATH=data_path, NUM_IMAGES=500)
+Ai4MarsDownload()(PATH=data_path)
+importer = Ai4MarsImporter()
+X_, y_, _ = importer(PATH=data_path, NUM_IMAGES=200, SAVE_PATH=save_path, checkpoint=0)
 
-# Uncomment the following lines to apply transformations to the dataset
-transform = transforms.RandomChoice([
-    transforms.RandomRotation(90)])
+# Extend the dataset
+extend = True
+if extend:
+    for i in range(3):
+      X_, y_, _ = importer(PATH=data_path, NUM_IMAGES=200, SAVE_PATH=save_path, checkpoint=_)
+      
+      del X_
+      del y_
 
-# Split the dataset
-splitter = Ai4MarsSplitter()
-train_set, test_set, val_set = splitter(X, y, [0.7, 0.2, 0.1], transform=transform,
-                                        SAVE_PATH=save_path, SIZE=128)
-
-# Build Ai4MarsDataloader
-loader = Ai4MarsDataLoader()
-train_loader, test_loader, val_loader = loader([train_set, test_set, val_set], [32, 16, 16], SIZE=128)
