@@ -173,6 +173,7 @@ semantic-segmentation/
 
 # Dataset
 datasetup/dataset/
+datasetup/chunk-dataset/
 dataset/ 
 
 # Dataset directories
