@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 class Ai4MarsTrainer():
 
     # Initialization of training parameters in the class constructor
-    def __init__(self, loss_fn, optimizer, train_loader, val_loader,
+    def __init__(self, loss_fn, optimizer, train_loader, val_loader, lr_scheduler,
                  transform=None, device='cpu', info:dict={}, model_name:str='', dump:bool=True):
         self.loss_fn = loss_fn
         self.optimizer = optimizer
@@ -223,7 +223,7 @@ class Ai4MarsTrainer():
                 best_vloss = last_vloss
 
                 torch.save(model.state_dict(), SAVE_PATH + 'model_{}_{}'.format(timestamp, epoch_number))
-
+            lr_scheduler.step(val_loss)
             
 
     # Plot loss function on train set and validation set after training
