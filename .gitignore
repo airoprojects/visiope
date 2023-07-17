@@ -175,7 +175,7 @@ semantic-segmentation/
 datasetup/dataset/
 dataset/ 
 
-# Dataloader directoriese
+# Dataset directories
 ai4mars-dataset-merged-0.1
 
 # NP tensors for test
