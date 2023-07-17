@@ -151,7 +151,7 @@ class Ai4MarsTrainer():
 
             with open(SAVE_PATH + 'config', 'w') as config:
                 self.info = [
-                    "Dataset:" + self.info['dataset'],
+                    "Dataset: " + self.info['dataset'],
                     "Model name: " + str(self.model_name),
                     "Image size: " + str(self.info['size']),
                     "Splitting percentages: " + self.info['percentages'],

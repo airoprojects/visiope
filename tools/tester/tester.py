@@ -74,14 +74,16 @@ class Ai4MarsTester():
         print(f"Metrics {self.metric}: {value.item()}")
 
     # Show segmentated version of image
-    def show_seg(self, inputs, SAVE_PATH:str=''):
+    def show_seg(self, inputs, SAVE_PATH:str='',  index:int=0):
 
         # Expected input shape B x C x H x W
         if inputs.shape[1] == 5:
             inputs = inputs[0].softmax(0).argmax(0).to(float)
+            image_type = 'prediction'
         
         else:
             inputs = inputs[0].squeeze()
+            image_type = 'label'
 
         color_map = {
             0: [1, 0, 0],       # red       [soil]
@@ -108,11 +110,17 @@ class Ai4MarsTester():
         plt.show()
 
         if SAVE_PATH:
+
+            SAVE_PATH = SAVE_PATH + '/images/'
+
             import os
             if not os.path.exists(SAVE_PATH) : 
                 os.makedirs(SAVE_PATH)
 
-            SAVE_PATH = SAVE_PATH + '/images/'
+            print(f"Data will be saved in {SAVE_PATH}")
+
+            # Save the image to a file
+            plt.savefig(SAVE_PATH + image_type + str(index))
 
     # Show raw dataset image
     def show_images(self, image, SAVE_PATH:str='', index:int=0):
@@ -121,15 +129,15 @@ class Ai4MarsTester():
 
         if SAVE_PATH:
  
+            SAVE_PATH = SAVE_PATH + '/images/'
+
             import os
             if not os.path.exists(SAVE_PATH) : 
                 os.makedirs(SAVE_PATH)
 
-            SAVE_PATH = SAVE_PATH + '/images/'
-
             print(f"Data will be saved in {SAVE_PATH}")
 
-            # Save the plot to a file
+            # Save the image to a file
             plt.savefig(SAVE_PATH + 'image' + str(index))
 
 if __name__ == '__main__':
