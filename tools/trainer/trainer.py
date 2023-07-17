@@ -18,7 +18,8 @@ class Ai4MarsTrainer():
         self.val_loader = val_loader
         self.device = device
         self.transform = transform
-
+        self.lr_scheduler = lr_scheduler
+        
         self.loss_list = []
         self.tloss_list = []
         self.vloss_list = []
@@ -223,7 +224,7 @@ class Ai4MarsTrainer():
                 best_vloss = last_vloss
 
                 torch.save(model.state_dict(), SAVE_PATH + 'model_{}_{}'.format(timestamp, epoch_number))
-            lr_scheduler.step(val_loss)
+            self.lr_scheduler.step(val_loss)
             
 
     # Plot loss function on train set and validation set after training
