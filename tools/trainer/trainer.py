@@ -31,6 +31,8 @@ class Ai4MarsTrainer():
         if dump: self.location = '/dump/'
         else: self.location = '/data/'
 
+        self.results_path = self.location + self.token 
+
     # This function implements training for just one epoch
     def train_one_epoch(self, model, epoch_index=0):
         running_loss = 0.
@@ -136,7 +138,10 @@ class Ai4MarsTrainer():
         self.tloss_list = []
         self.vloss_list = []
 
-        SAVE_PATH = SAVE_PATH + self.location + self.token + '/model_state/' 
+        # Keep path to model results as attribute for futire saving
+        self.results_path = SAVE_PATH + self.location + self.token
+
+        SAVE_PATH = SAVE_PATH + self.location + self.token + '/model_state/'  
 
         import os
         if not os.path.exists(SAVE_PATH) : 
@@ -146,7 +151,7 @@ class Ai4MarsTrainer():
 
             with open(SAVE_PATH + 'config', 'w') as config:
                 self.info = [
-                    "Dataset:" + self.info['dataset'],
+                    "Dataset: " + self.info['dataset'],
                     "Model name: " + str(self.model_name),
                     "Image size: " + str(self.info['size']),
                     "Splitting percentages: " + self.info['percentages'],
@@ -218,6 +223,7 @@ class Ai4MarsTrainer():
                 best_vloss = last_vloss
 
                 torch.save(model.state_dict(), SAVE_PATH + 'model_{}_{}'.format(timestamp, epoch_number))
+
             
 
     # Plot loss function on train set and validation set after training
@@ -252,8 +258,8 @@ class Ai4MarsTrainer():
             print(f"Data will be saved in {SAVE_PATH}")
 
             # Save loss on train and validation as np array for future valuations
-            np.save(SAVE_PATH + 'loss_' + '{}.npy'.format(timestamp), loss_list)
-            np.save(SAVE_PATH + 'vloss_' + '{}.npy'.format(timestamp), vloss_list)
+            # np.save(SAVE_PATH + 'loss_' + '{}.npy'.format(timestamp), loss_list)
+            # np.save(SAVE_PATH + 'vloss_' + '{}.npy'.format(timestamp), vloss_list)
 
             if self.tloss_list:
                 np.save(SAVE_PATH + 'tloss_' + '{}.npy'.format(timestamp), tloss_list)

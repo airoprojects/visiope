@@ -1,8 +1,10 @@
 """ Tester module for MER-Segmentation 2.0 """
 
 import torch
-import torch.nn.functional as F
+import numpy as np
 import torchmetrics as metrics
+import matplotlib.pyplot as plt
+import torch.nn.functional as F
 
 class Ai4MarsTester():
 
@@ -70,6 +72,73 @@ class Ai4MarsTester():
         value = self.metric(total_outputs.reshape(-1), total_labels.reshape(-1))
 
         print(f"Metrics {self.metric}: {value.item()}")
+
+    # Show segmentated version of image
+    def show_seg(self, inputs, SAVE_PATH:str='',  index:int=0):
+
+        # Expected input shape B x C x H x W
+        if inputs.shape[1] == 5:
+            inputs = inputs[0].softmax(0).argmax(0).to(float)
+            image_type = 'prediction'
+        
+        else:
+            inputs = inputs[0].squeeze()
+            image_type = 'label'
+
+        color_map = {
+            0: [1, 0, 0],       # red       [soil]
+            1: [0, 0, 0.5],     # blue      [bedrock]
+            2: [0, 1, 0],       # green     [sand]
+            3: [1, 1, 0],       # yellow    [big rock]
+            4: [0.8, 0.8, 0.8], # white     [background]
+        }
+
+        # Convert labels to numpy array
+        inputs = np.array(inputs)
+
+        # Create an empty RGB image with the same shape as labels
+        height, width = inputs.shape
+        image = np.zeros((height, width, 3))
+
+        # Map labels to colors
+        for i in range(height):
+            for j in range(width):
+                image[i, j] = color_map[inputs[i, j]]
+
+        # Display the image
+        plt.imshow(image, cmap='gray')
+        plt.show()
+
+        if SAVE_PATH:
+
+            SAVE_PATH = SAVE_PATH + '/images/'
+
+            import os
+            if not os.path.exists(SAVE_PATH) : 
+                os.makedirs(SAVE_PATH)
+
+            print(f"Data will be saved in {SAVE_PATH}")
+
+            # Save the image to a file
+            plt.savefig(SAVE_PATH + image_type + str(index))
+
+    # Show raw dataset image
+    def show_images(self, image, SAVE_PATH:str='', index:int=0):
+        plt.imshow(image[0].permute(1,0,2).permute(0,2,1).detach().numpy(), cmap='gray')
+        plt.show()
+
+        if SAVE_PATH:
+ 
+            SAVE_PATH = SAVE_PATH + '/images/'
+
+            import os
+            if not os.path.exists(SAVE_PATH) : 
+                os.makedirs(SAVE_PATH)
+
+            print(f"Data will be saved in {SAVE_PATH}")
+
+            # Save the image to a file
+            plt.savefig(SAVE_PATH + 'image' + str(index))
 
 if __name__ == '__main__':
     pass
