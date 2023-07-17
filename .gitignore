@@ -176,8 +176,7 @@ datasetup/dataset/
 dataset/ 
 
 # Dataloader directoriese
-dataloader/ai4mars-dataset-merged-0.1
-dataloader/data_loader.pkl
+ai4mars-dataset-merged-0.1
 
 # NP tensors for test
 /loss/test/*.pt
