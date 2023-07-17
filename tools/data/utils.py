@@ -159,14 +159,14 @@ class Ai4MarsDownload():
 # Import the dataset as torch array
 class Ai4MarsImporter():
         
-    def __call__(self, PATH:str='./', NUM_IMAGES:int=200, SAVE_PATH:str=None, SIZE:int=128, checkpoint:int=None): 
+    def __call__(self, PATH:str='./', NUM_IMAGES=200, SAVE_PATH:str=None, SIZE:int=128, checkpoint:int=None): 
 
         if checkpoint: NUM_IMAGES += checkpoint
 
         # Allow to process all the images in the dataset
         if NUM_IMAGES == 'all': NUM_IMAGES = 16064
 
-        if NUM_IMAGES > 16000 : 
+        if NUM_IMAGES > 16064 : 
             raise Exception(f"Trying to import too many images: {NUM_IMAGES}. Max number: 16000")
 
         DATASET = 'ai4mars-dataset-merged-0.1'
