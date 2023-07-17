@@ -189,6 +189,9 @@ trainer/tests
 
 # experiments
 experiments/dump/
+experiments/.info.pt
+datasetup/.info.pt
+.info.pt
 experiments/info.pt
 datasetup/info.pt
 info.pt

@@ -12,6 +12,7 @@ from torch import Tensor
 import torchvision.transforms as transforms
 from torch.utils.data import Dataset, DataLoader
 
+#===============================================================#
 # Custom dataset for semantic segmentetion on Mars terrain images
 class Ai4MarsDataset(Dataset):
 
@@ -62,14 +63,14 @@ class Ai4MarsDataset(Dataset):
     def set_grad(self):
         self.X.requires_grad = True
 
-
-# Download the dataset in a pair of torch tensors (X, y) 
+#===============================================================#
+# Download the dataset 
 class Ai4MarsDownload():
 
     def __init__(self) -> None:
         pass
 
-    def __call__(self, PATH:str='./', NUM_IMAGES:int=200, SAVE_PATH:str=None, SIZE:int=128): 
+    def __call__(self, PATH:str='./'): 
 
         import sys
         COLAB = 'google.colab' in sys.modules
@@ -77,21 +78,9 @@ class Ai4MarsDownload():
 
         DATASET = 'ai4mars-dataset-merged-0.1'
 
-        # Downloading Phase
-        print(f"Download parameters: \n \
-              Dataset: {DATASET} \n \
-              Path to the dataset: {PATH} \n \
-              Colab Environment: {COLAB} \n \
-              Number of images to load: {NUM_IMAGES} \n \
-              Saving path for X and y: {SAVE_PATH}"
-              )
+        print(f"Downloader script for {DATASET}")
         
-        if NUM_IMAGES > 16000 : raise Exception(f"Trying to import too many images: {NUM_IMAGES}. Max number: 16000")
-
-        # Allow to process all the images in the dataset
-        if NUM_IMAGES == 'all': NUM_IMAGES = 16064
-
-        # # Check if the dataset is already in PATH
+        # Check if the dataset is already in PATH
         is_here = os.path.exists(PATH + DATASET)
 
         if LOCAL:
@@ -163,6 +152,31 @@ class Ai4MarsDownload():
                                 zip_ref.extract(member, PATH)
                             except zipfile.error as e:
                                 pass
+        print("Done\n")
+        return PATH
+
+#===============================================================#
+# Import the dataset as torch array
+class Ai4MarsImporter():
+        
+    def __call__(self, PATH:str='./', NUM_IMAGES:int=200, SAVE_PATH:str=None, SIZE:int=128, checkpoint:int=None): 
+
+        if checkpoint: NUM_IMAGES += checkpoint
+
+        # Allow to process all the images in the dataset
+        if NUM_IMAGES == 'all': NUM_IMAGES = 16064
+
+        if NUM_IMAGES > 16000 : 
+            raise Exception(f"Trying to import too many images: {NUM_IMAGES}. Max number: 16000")
+
+        DATASET = 'ai4mars-dataset-merged-0.1'
+
+        print(f"Import parameters: \n \
+              Dataset: {DATASET} \n \
+              Path to the dataset: {PATH} \n \
+              Number of images to load: {NUM_IMAGES} \n \
+              Saving path for X and y: {SAVE_PATH}"
+              )
         
         # Unpacking Phase 
         print(f"Unpacking images and lables from: {DATASET} ...")
@@ -183,51 +197,76 @@ class Ai4MarsDownload():
         
         for label in label_train_files:
 
-            # Names of images match names of labels, except for the extension (JPG, png)
-            img_name = label[:-4] + ".JPG" 
+            # This allow to load data after a given checkpoint
+            if checkpoint and (image_counter < checkpoint): 
+                image_counter += 1 
+                pass
 
-            if img_name in edr_files:
-                img_path = os.path.join(edr, img_name) 
-                img_arr = cv2.imread(img_path) 
-                label_path = os.path.join(label_train, label)
-                lab_arr = cv2.imread(label_path,0) # 0 mean read as greyscale image
+            else: 
+                image_counter += 1
 
+                # Names of images match names of labels, except for the extension (JPG, png)
+                img_name = label[:-4] + ".JPG" 
 
-                # Build torch tensors
-                x_t = torch.from_numpy(img_arr) / 255 # normalization
-                y_t = torch.from_numpy(lab_arr[:, :, np.newaxis])
-                y_t[y_t == 255] = 4 # reassigment for background
+                if img_name in edr_files:
+                    img_path = os.path.join(edr, img_name) 
+                    img_arr = cv2.imread(img_path) 
+                    label_path = os.path.join(label_train, label)
+                    lab_arr = cv2.imread(label_path,0) # 0 mean read as greyscale image
 
-                if SIZE:
-                    transform = transforms.Resize(SIZE,antialias=True)
-                    x_t = transform(x_t)
-                    y_t = transform(y_t)
-                    
-                X.append(x_t)
-                y.append(y_t)
+                    # Build torch tensors
+                    x_t = torch.from_numpy(img_arr) / 255 # normalization
+                    y_t = torch.from_numpy(lab_arr[:, :, np.newaxis])
+                    y_t[y_t == 255] = 4 # reassigment for background
 
-                # free up some memory
-                del img_arr
-                del lab_arr
+                    if SIZE:
+                        transform = transforms.Resize(SIZE,antialias=True)
+                        x_t = x_t.permute(2,1,0)
+                        x_t = transform(x_t)
+                        y_t = y_t.permute(2,1,0)
+                        y_t = transform(y_t)
+                        
+                    X.append(x_t)
+                    y.append(y_t)
+
+                    # free up some memory
+                    del img_arr
+                    del lab_arr
             
-                image_counter += 1  # this control how much images you want
-                if image_counter == NUM_IMAGES: break
+            if image_counter == NUM_IMAGES: break
             
         print(f"Inputs len: {len(X)}")
         print(f"Labels len: {len(y)}")
 
         print("Converting inputs and labels into torch tensors ...")
-        X = torch.stack(X, dim=0)
-        y = torch.stack(y, dim=0)
+        X = torch.stack(X, dim=0) # 3 x SIZE x SIZE
+        y = torch.stack(y, dim=0) # 1 x SIZE x SIZE
 
         if SAVE_PATH:
-            print(f"{DATASET} will be saved inside two different 'pt' files in: {SAVE_PATH}")
-            torch.save(X, SAVE_PATH + 'X.pt')
-            torch.save(y, SAVE_PATH + 'y.pt')
+            print(f"{DATASET} will be saved inside two different in: {SAVE_PATH}")
+            # torch.save(X, SAVE_PATH + 'X.pt')
+            # torch.save(y, SAVE_PATH + 'y.pt')
+
+            if not os.path.isfile(SAVE_PATH + 'dataset.pt'):
+                torch.save((X, y), SAVE_PATH + 'dataset.pt')
+
+            else:
+                print(f"A version of {DATASET} already exist, appending new data ...")
+                OLD_X, OLD_y = torch.load(SAVE_PATH + 'dataset.pt')
+        
+                NEW_X = torch.cat((OLD_X, X), dim=0)
+                NEW_y = torch.cat((OLD_y, y), dim=0)
+                torch.save((NEW_X, NEW_y ), SAVE_PATH + 'dataset.pt')
+
+                del OLD_X
+                del OLD_y
+                del NEW_X
+                del NEW_y
 
         print("Done\n")
-        return X, y
+        return X, y, image_counter
 
+#===============================================================#
 # Random Split and Data Augmentation
 class Ai4MarsSplitter():
 
@@ -244,14 +283,6 @@ class Ai4MarsSplitter():
         
         DATASET = 'ai4mars-dataset-merged-0.1'
 
-        print(f"Splitting parameters: \n \
-            Dataset: {DATASET} \n \
-            Colab environment: {COLAB} \n \
-            Split percentages: {percentages} \n \
-            Transformation: {transform} \n \
-            Svaving path: {SAVE_PATH} \n \
-            New image size: {SIZE}")
-        
         # Saving data parameters
         self.info['dataset'] = DATASET
         self.info['percentages'] = str(percentages)
@@ -262,6 +293,15 @@ class Ai4MarsSplitter():
         
         else:
             self.info['size'] = str(X.shape[-2])
+
+        print(f"Splitting parameters: \n \
+            Dataset: {DATASET} \n \
+            Colab environment: {COLAB} \n \
+            Split percentages: {percentages} \n \
+            Transformation: {transform} \n \
+            Svaving path: {SAVE_PATH} \n \
+            New image size: {self.info['size']}")
+        
 
         if COLAB:
             answ = str(input("Do you want to perform a lighter processing for the data? ")).lower()
@@ -334,8 +374,8 @@ class Ai4MarsSplitter():
 
         # Convertion to torch tensors - x C x H x W 
         for i in range(len(subsets_X)):                             
-            subsets_X[i] = torch.stack(subsets_X[i], dim=0).permute(0,1,3,2).permute(0,2,1,3)
-            subsets_y[i] = torch.stack(subsets_y[i], dim=0).permute(0,1,3,2).permute(0,2,1,3)
+            subsets_X[i] = torch.stack(subsets_X[i], dim=0) #.permute(0,1,3,2).permute(0,2,1,3)
+            subsets_y[i] = torch.stack(subsets_y[i], dim=0) #.permute(0,1,3,2).permute(0,2,1,3)
 
         augmentation_X = []
         augmentation_y = []
@@ -391,15 +431,15 @@ class Ai4MarsSplitter():
             import os 
             if not os.path.exists(SAVE_PATH) : 
                 os.makedirs(SAVE_PATH)
-            torch.save(datasets, SAVE_PATH + 'dataset.pt')
-            torch.save(self.info, SAVE_PATH + 'info.pt')
-
-        else:
-            torch.save(self.info, './info.pt')
+            torch.save(datasets, SAVE_PATH + 'splitted_dataset.pt')
+            
+        torch.save(self.info, './.info.pt')
 
         print("Done \n")
         return datasets
-    
+
+#===============================================================#
+# Custom dataloader   
 class Ai4MarsDataLoader():
 
     def __init__(self) -> None:
