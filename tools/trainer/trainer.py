@@ -224,9 +224,9 @@ class Ai4MarsTrainer():
             if last_vloss < best_vloss:
                 best_vloss = last_vloss
 
-                SAVE_PATH = SAVE_PATH = self.results_path + '/model_state/'
+                # SAVE_PATH = SAVE_PATH = self.results_path + '/model_state/'
 
-                torch.save(model.state_dict(), SAVE_PATH + 'model_{}_{}'.format(timestamp, epoch_number))
+                # torch.save(model.state_dict(), SAVE_PATH + 'model_{}_{}'.format(timestamp, epoch_number))
 
             if self.lr_scheduler:   
                 self.lr_scheduler.step(val_loss)
