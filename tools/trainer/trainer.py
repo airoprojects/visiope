@@ -229,7 +229,7 @@ class Ai4MarsTrainer():
                 # torch.save(model.state_dict(), SAVE_PATH + 'model_{}_{}'.format(timestamp, epoch_number))
 
             if self.lr_scheduler:   
-                self.lr_scheduler.step(val_loss)
+                self.lr_scheduler.step()
             
 
     # Plot loss function on train set and validation set after training
