@@ -153,7 +153,7 @@ class Ai4MarsTrainer():
         return last_loss
 
     # This function implements training for multiple epochs
-    def train_multiple_epoch(self, model, EPOCHS:int=100, SAVE_PATH:str='./'):
+    def train_multiple_epoch(self, model, EPOCHS:int=100):
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         epoch_number = 0 # just an to reference save state epoch
         last_vloss = 0.
@@ -233,7 +233,7 @@ class Ai4MarsTrainer():
             
 
     # Plot loss function on train set and validation set after training
-    def plot_loss(self, SAVE_PATH:str='.'):
+    def plot_loss(self, SAVE:bool=True):
 
         loss_list = np.array(self.loss_list)
         vloss_list = np.array(self.vloss_list)
@@ -250,7 +250,7 @@ class Ai4MarsTrainer():
         plt.ylabel('Losses')
         plt.legend()
         
-        if SAVE_PATH:
+        if SAVE:
 
             import os 
 
@@ -279,7 +279,7 @@ class Ai4MarsTrainer():
         print(f'Validation mean loss: {vloss_list.mean()}')
 
     # Plot histogram of model parameters before and after taraining
-    def param_hist(self, model, SAVE_PATH:str='.', label:str=''):
+    def param_hist(self, model, SAVE:bool=True, label:str=''):
 
         # Obtain the parameter values from the trained model
         parameters = []
@@ -306,7 +306,7 @@ class Ai4MarsTrainer():
         plt.title('Histogram of Model Parameters')
 
         
-        if SAVE_PATH:
+        if SAVE:
 
             import os 
 
