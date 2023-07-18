@@ -176,6 +176,7 @@ datasetup/dataset/
 datasetup/chunk-dataset/
 datasetup/small-chunk-dataset/
 datasetup/medium-chunk-dataset/
+datasetup/big-chunk-dataset/
 dataset/ 
 
 # Dataset directories
