@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 class Ai4MarsTrainer():
 
     # Initialization of training parameters in the class constructor
-    def __init__(self, loss_fn, optimizer, train_loader, val_loader, lr_scheduler,
+    def __init__(self, loss_fn, optimizer, train_loader, val_loader, lr_scheduler=None,
                  transform=None, device='cpu', info:dict={}, model_name:str='', dump:bool=True):
         self.loss_fn = loss_fn
         self.optimizer = optimizer
@@ -29,10 +29,33 @@ class Ai4MarsTrainer():
         self.token = str(datetime.now().strftime('%Y%m%d-%H%M%S'))
 
         if model_name: self.token =  self.token + '-' + model_name
-        if dump: self.location = '/dump/'
-        else: self.location = '/data/'
 
-        self.results_path = self.location + self.token 
+        # Choose wheter save data or just dump them
+        if dump: self.location = './dump/'
+        else: self.location = './data/'
+
+        # Keep path to model results as attribute for futire saving
+        self.results_path =  self.location + self.token
+
+        SAVE_PATH = self.results_path + '/model_state/'  
+
+        import os
+        if not os.path.exists(SAVE_PATH) : 
+            os.makedirs(SAVE_PATH)
+
+        if self.info:
+
+            with open(SAVE_PATH + 'config', 'w') as config:
+                self.info = [
+                    "Dataset: " + self.info['dataset'],
+                    "Model name: " + str(self.model_name),
+                    "Image size: " + str(self.info['size']),
+                    "Splitting percentages: " + self.info['percentages'],
+                    "Prior augmentation: " + str(self.info['transform']),
+                    "Online augmentation: " + str(self.transform)
+                ]
+                config.writelines(["%s\n" % item  for item in self.info])
+
 
     # This function implements training for just one epoch
     def train_one_epoch(self, model, epoch_index=0):
@@ -130,7 +153,7 @@ class Ai4MarsTrainer():
         return last_loss
 
     # This function implements training for multiple epochs
-    def train_multiple_epoch(self, model, EPOCHS:int=100, SAVE_PATH:str='./'):
+    def train_multiple_epoch(self, model, EPOCHS:int=100):
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         epoch_number = 0 # just an to reference save state epoch
         last_vloss = 0.
@@ -138,28 +161,6 @@ class Ai4MarsTrainer():
         self.loss_list = []
         self.tloss_list = []
         self.vloss_list = []
-
-        # Keep path to model results as attribute for futire saving
-        self.results_path = SAVE_PATH + self.location + self.token
-
-        SAVE_PATH = SAVE_PATH + self.location + self.token + '/model_state/'  
-
-        import os
-        if not os.path.exists(SAVE_PATH) : 
-            os.makedirs(SAVE_PATH)
-
-        if self.info:
-
-            with open(SAVE_PATH + 'config', 'w') as config:
-                self.info = [
-                    "Dataset: " + self.info['dataset'],
-                    "Model name: " + str(self.model_name),
-                    "Image size: " + str(self.info['size']),
-                    "Splitting percentages: " + self.info['percentages'],
-                    "Prior augmentation: " + str(self.info['transform']),
-                    "Online augmentation: " + str(self.transform)
-                ]
-                config.writelines(["%s\n" % item  for item in self.info])
 
         for epoch in range(EPOCHS):
 
@@ -223,12 +224,16 @@ class Ai4MarsTrainer():
             if last_vloss < best_vloss:
                 best_vloss = last_vloss
 
+                SAVE_PATH = SAVE_PATH = self.results_path + '/model_state/'
+
                 torch.save(model.state_dict(), SAVE_PATH + 'model_{}_{}'.format(timestamp, epoch_number))
-            self.lr_scheduler.step(val_loss)
+
+            if self.lr_scheduler:   
+                self.lr_scheduler.step(val_loss)
             
 
     # Plot loss function on train set and validation set after training
-    def plot_loss(self, model:str=None, SAVE_PATH:str=None):
+    def plot_loss(self, SAVE:bool=True):
 
         loss_list = np.array(self.loss_list)
         vloss_list = np.array(self.vloss_list)
@@ -244,12 +249,12 @@ class Ai4MarsTrainer():
         plt.xlabel('Epochs')
         plt.ylabel('Losses')
         plt.legend()
-
-        if SAVE_PATH:
+        
+        if SAVE:
 
             import os 
 
-            SAVE_PATH = SAVE_PATH + self.location + self.token + '/loss/' 
+            SAVE_PATH = self.results_path + '/loss/' 
 
             if not os.path.exists(SAVE_PATH) : 
                 os.makedirs(SAVE_PATH)
@@ -274,7 +279,7 @@ class Ai4MarsTrainer():
         print(f'Validation mean loss: {vloss_list.mean()}')
 
     # Plot histogram of model parameters before and after taraining
-    def param_hist(self, model, SAVE_PATH:str=None, label:str=''):
+    def param_hist(self, model, SAVE:bool=True, label:str=''):
 
         # Obtain the parameter values from the trained model
         parameters = []
@@ -300,11 +305,12 @@ class Ai4MarsTrainer():
         plt.ylabel('Frequency')
         plt.title('Histogram of Model Parameters')
 
-        if SAVE_PATH:
+        
+        if SAVE:
 
             import os 
 
-            SAVE_PATH = SAVE_PATH + self.location + self.token + '/hist/' 
+            SAVE_PATH = self.results_path + '/hist/' 
 
             if not os.path.exists(SAVE_PATH) : 
                 os.makedirs(SAVE_PATH)
