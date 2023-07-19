@@ -122,7 +122,12 @@ class Ai4MarsTrainer():
                 tloss = self.loss_fn(toutputs, tlabels)
                 tloss.backward()
                 self.optimizer.step()
-                running_tloss = tloss.item()
+
+                # monitor t loss
+                running_tloss += tloss.item()
+
+                # add to running loss
+                running_loss += tloss.item()
 
                 t_index += 1
                 tinputs.detach()
@@ -137,7 +142,7 @@ class Ai4MarsTrainer():
             del labels
 
         # Compute the average loss over all batches
-        last_loss =  (running_loss) / (batch_index+1)
+        last_loss =  (running_loss) / (batch_index + 1 + t_index)
 
         # Print report at the end of the last batch
         # and append loss to loss list
