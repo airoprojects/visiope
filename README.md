@@ -1,11 +1,39 @@
-# visiope
+# Mars Terrain Semantic Segmentation
 Vison and Perception Project - Sapienza (AIRO) 2022/2023
 
-# Mars Terrain Semantic Segmentation
+---
+## Table of content
+0. [Introduction](#introduction)
+1. [Getting Started](#getting-started)
+2. [Train the model](#train-the-model)
+3. [Test the model](#test-the-model)
+4. [Content of this repository](#content-of-this-repository)
+---
 
+# Introduction
 This project aims to solve a semantic segmentation problem over a dataset of Mars terrain images collected by three NASA rover missions. The objective is to build a lightweight neural network that improves autonomous driving for future rover missions by recognizing different kinds of terrains. The task involves segmenting the images into four classes plus background.
 
-## Directory Structure
+# Getting Started
+
+To get started with the project, please follow the steps below:
+
+- If you want to try it on your local maachine:
+
+    1. Install the requirment in requirment.txt
+    2. Clone the repository: `git clone https://github.com/your-username/mars-terrain-segmentation.git`
+    3. Set up the dataset by running the data loading scripts in the `datasetup/` directory.
+    4. Or just run one of the scripts inside the `experiment` directory.
+    5. Explore the different models available in the `models/` directory and choose the one you want to use.
+       
+- If you wnat to try it on [Google COLAB](https://colab.research.google.com/):
+    1. Just open in COLAB one of the scripts in the `experiment` directory.
+
+
+# Train the model
+
+# Test the model
+
+# Content of this repository
 
 The project directory has the following structure:
 
@@ -50,18 +78,6 @@ The project directory has the following structure:
     - `RESOURCES.md`: Markdown file listing additional resources related to the project.
 
 - `test.ipynb`: Jupyter Notebook for testing various components of the project.
-
-## Getting Started
-
-To get started with the project, please follow the steps below:
-
-1. Clone the repository: `git clone https://github.com/your-username/mars-terrain-segmentation.git`
-2. Set up the dataset by running the data loading scripts in the `dataloader/` directory.
-3. Explore the different models available in the `models/` directory and choose the one you want to use.
-4. Train the chosen model using the training code provided.
-5. Evaluate the trained model using the evaluation code provided.
-6. Experiment with different loss functions from the `loss/` directory if desired.
-7. Customize the code as per your requirements and explore other functionalities.
 
 ## License
 
