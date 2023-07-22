@@ -243,7 +243,7 @@ class Ai4MarsImporter():
         y = torch.stack(y, dim=0) # 1 x SIZE x SIZE
 
         if SAVE_PATH:
-            print(f"{DATASET} will be saved inside two different in: {SAVE_PATH}")
+            print(f"{DATASET} will be saved in: {SAVE_PATH}")
             # torch.save(X, SAVE_PATH + 'X.pt')
             # torch.save(y, SAVE_PATH + 'y.pt')
 
@@ -303,16 +303,16 @@ class Ai4MarsSplitter():
             New image size: {self.info['size']}")
         
 
-        if COLAB:
-            answ = str(input("Do you want to perform a lighter processing for the data? ")).lower()
+        # if COLAB:
+        #     answ = str(input("Do you want to perform a lighter processing for the data? ")).lower()
 
-            if answ in ['yes', 'y', 'si', 's']:
+        #     if answ in ['yes', 'y', 'si', 's']:
 
-                from torch.utils.data import random_split
-                dataset = Ai4MarsDataset(X, y)
-                if SIZE: dataset.resize(SIZE)
+        #         from torch.utils.data import random_split
+        #         dataset = Ai4MarsDataset(X, y)
+        #         if SIZE: dataset.resize(SIZE)
 
-                return random_split(dataset, percentages)
+        #         return random_split(dataset, percentages)
 
         datasets = []
 

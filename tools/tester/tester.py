@@ -106,6 +106,7 @@ class Ai4MarsTester():
                 image[i, j] = color_map[inputs[i, j]]
 
         # Display the image
+        fig = plt.figure()
         plt.imshow(image, cmap='gray')
         plt.show()
 
@@ -120,11 +121,16 @@ class Ai4MarsTester():
             print(f"Data will be saved in {SAVE_PATH}")
 
             # Save the image to a file
-            plt.savefig(SAVE_PATH + image_type + str(index))
+            fig.savefig(SAVE_PATH + image_type + str(index), bbox_inches='tight', pad_inches=0)
+        plt.close(fig)
 
     # Show raw dataset image
     def show_images(self, image, SAVE_PATH:str='', index:int=0):
-        plt.imshow(image[0].permute(1,0,2).permute(0,2,1).detach().numpy(), cmap='gray')
+
+        image_np = image[0].permute(1,0,2).permute(0,2,1).detach().numpy()
+        fig = plt.figure()
+
+        plt.imshow(image_np, cmap='gray')
         plt.show()
 
         if SAVE_PATH:
@@ -138,7 +144,8 @@ class Ai4MarsTester():
             print(f"Data will be saved in {SAVE_PATH}")
 
             # Save the image to a file
-            plt.savefig(SAVE_PATH + 'image' + str(index))
+            fig.savefig(SAVE_PATH + 'image' + str(index), bbox_inches='tight', pad_inches=0)
+        plt.close(fig)  # Close the figure to release memory
 
 if __name__ == '__main__':
     pass

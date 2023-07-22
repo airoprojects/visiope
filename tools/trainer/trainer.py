@@ -122,7 +122,12 @@ class Ai4MarsTrainer():
                 tloss = self.loss_fn(toutputs, tlabels)
                 tloss.backward()
                 self.optimizer.step()
-                running_tloss = tloss.item()
+
+                # monitor t loss
+                running_tloss += tloss.item()
+
+                # add to running loss
+                running_loss += tloss.item()
 
                 t_index += 1
                 tinputs.detach()
@@ -137,7 +142,7 @@ class Ai4MarsTrainer():
             del labels
 
         # Compute the average loss over all batches
-        last_loss =  (running_loss) / (batch_index+1)
+        last_loss =  (running_loss) / (batch_index + 1 + t_index)
 
         # Print report at the end of the last batch
         # and append loss to loss list
@@ -224,12 +229,12 @@ class Ai4MarsTrainer():
             if last_vloss < best_vloss:
                 best_vloss = last_vloss
 
-                SAVE_PATH = SAVE_PATH = self.results_path + '/model_state/'
+                # SAVE_PATH = SAVE_PATH = self.results_path + '/model_state/'
 
-                torch.save(model.state_dict(), SAVE_PATH + 'model_{}_{}'.format(timestamp, epoch_number))
+                # torch.save(model.state_dict(), SAVE_PATH + 'model_{}_{}'.format(timestamp, epoch_number))
 
             if self.lr_scheduler:   
-                self.lr_scheduler.step(val_loss)
+                self.lr_scheduler.step()
             
 
     # Plot loss function on train set and validation set after training
